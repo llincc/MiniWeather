@@ -3,6 +3,9 @@ package com.example.linch.miniweather;
 import android.app.Activity;
 import android.app.Notification;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -26,6 +29,7 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
 
 /**
  * Created by linch on 2017/9/20.
@@ -40,6 +44,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                        climateTv, windTv, city_name_Tv, currenttemp;
     private ImageView weatherImg, pmImg;
 
+    private HashMap<String ,Integer> ImgHash;
     private Handler mHandler = new Handler(){
         public void handleMessage(android.os.Message msg){
             switch (msg.what){
@@ -72,6 +77,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }
 
         initView();
+        initImage();
     }
     @Override
     public void onClick(View view){
@@ -122,13 +128,37 @@ public class MainActivity extends Activity implements View.OnClickListener{
         climateTv.setText("N/A");
         windTv.setText("N/A");
     }
+    private void initImage(){
+        ImgHash = new HashMap<String ,Integer>();
+        ImgHash.put("晴",R.drawable.biz_plugin_weather_qing);
+        ImgHash.put("阴",R.drawable.biz_plugin_weather_yin);
+        ImgHash.put("多云",R.drawable.biz_plugin_weather_duoyun);
+        ImgHash.put("沙尘暴",R.drawable.biz_plugin_weather_shachenbao);
+        ImgHash.put("雾",R.drawable.biz_plugin_weather_wu);
+        ImgHash.put("小雨",R.drawable.biz_plugin_weather_xiaoyu);
+        ImgHash.put("中雨",R.drawable.biz_plugin_weather_zhongyu);
+        ImgHash.put("大雨",R.drawable.biz_plugin_weather_dayu);
+        ImgHash.put("暴雨",R.drawable.biz_plugin_weather_baoyu);
+        ImgHash.put("大暴雨",R.drawable.biz_plugin_weather_tedabaoyu);
+        ImgHash.put("特大暴雨",R.drawable.biz_plugin_weather_tedabaoyu);
+        ImgHash.put("阵雨",R.drawable.biz_plugin_weather_zhenyu);
+        ImgHash.put("雷阵雨",R.drawable.biz_plugin_weather_leizhenyu);
+        ImgHash.put("雷阵雨冰雹",R.drawable.biz_plugin_weather_leizhenyubingbao);
+        ImgHash.put("雨夹雪",R.drawable.biz_plugin_weather_yujiaxue);
+        ImgHash.put("小雪",R.drawable.biz_plugin_weather_xiaoxue);
+        ImgHash.put("中雪",R.drawable.biz_plugin_weather_zhongxue);
+        ImgHash.put("阵雪",R.drawable.biz_plugin_weather_zhenxue);
+        ImgHash.put("大雪",R.drawable.biz_plugin_weather_daxue);
+        ImgHash.put("暴雪",R.drawable.biz_plugin_weather_baoxue);
 
+    }
     /**
      * 更新UI天气信息
      * @param todayWeather
      */
     private void updateTodayWeather(TodayWeather todayWeather){
         int pm25 = Integer.parseInt(todayWeather.getPm25());
+        String type = todayWeather.getType();
 
         city_name_Tv.setText(todayWeather.getCity()+"天气");
         cityTv.setText(todayWeather.getCity());
@@ -142,9 +172,29 @@ public class MainActivity extends Activity implements View.OnClickListener{
         climateTv.setText(todayWeather.getType());
         windTv.setText("风力："+todayWeather.getFengli());
         //没有风向
-        if(pm25<=50 && pm25>=0 ){
-           
+        if(pm25<=50){
+            /*String fileName = "/main/java/res/drawble-xhdpi/biz_plugin_weather_0_50.png";
+            Bitmap bmp = BitmapFactory.decodeFile(fileName);
+            pmImg.setImageBitmap(bmp);*/
+            pmImg.setImageDrawable(getResources().getDrawable(R.drawable.biz_plugin_weather_0_50));
         }
+        else if(pm25<=100){
+            pmImg.setImageDrawable(getResources().getDrawable(R.drawable.biz_plugin_weather_51_100));
+        }
+        else if(pm25<=150){
+            pmImg.setImageDrawable(getResources().getDrawable(R.drawable.biz_plugin_weather_101_150));
+        }
+        else if(pm25<=200){
+            pmImg.setImageDrawable(getResources().getDrawable(R.drawable.biz_plugin_weather_151_200));
+        }
+        else if(pm25<=300){
+            pmImg.setImageDrawable(getResources().getDrawable(R.drawable.biz_plugin_weather_201_300));
+        }
+        else{
+            pmImg.setImageDrawable(getResources().getDrawable(R.drawable.biz_plugin_weather_greater_300));
+        }
+
+        weatherImg.setImageDrawable(getResources().getDrawable(ImgHash.get(type)));
 
         Toast.makeText(MainActivity.this, "更新成功!", Toast.LENGTH_SHORT).show();
     }
