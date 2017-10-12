@@ -159,6 +159,7 @@
                     </LinearLayout>
                     <!-- PM2.5图片 -->
                     <ImageView
+                        android:id="@+id/pm2_5_img"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5.0dip"
