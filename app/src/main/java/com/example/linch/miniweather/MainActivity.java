@@ -60,7 +60,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
 
-        System.out.println(Thread.currentThread().getName());
+        //System.out.println(Thread.currentThread().getName());
         mUpdateBtn = (ImageView)findViewById(R.id.title_update_btn); //连接title_update_btn按钮
         mCityBtn = (ImageView)findViewById(R.id.title_city_manager);
         mUpdateBtn.setOnClickListener(this);
@@ -90,7 +90,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         if(view.getId() == R.id.title_update_btn){
             //通过SharedPreferences读取城市id，如果没有定义则缺省为101010100（北京城市）
             SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
-            String cityCode = sharedPreferences.getString("main_city_code","101010100");
+            String cityCode = sharedPreferences.getString("main_city_code","101230705");
             Log.d("myWeather",cityCode);
 
             if(NetUtil.getNetworkState(this)!=NetUtil.NETWORN_NONE){  //确定网络可访问
@@ -238,7 +238,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             public void run() {
                 HttpURLConnection con = null;
                 TodayWeather todayWeather = null;
-                System.out.println(Thread.currentThread().getName());
+                //System.out.println(Thread.currentThread().getName());
                 try{
                     URL url = new URL(address);
                     con = (HttpURLConnection)url.openConnection();
