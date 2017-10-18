@@ -1,4 +1,4 @@
-package com.example.linch.miniweather;
+package com.example.linch.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

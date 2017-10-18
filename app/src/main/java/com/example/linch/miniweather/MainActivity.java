@@ -1,11 +1,8 @@
 package com.example.linch.miniweather;
 
 import android.app.Activity;
-import android.app.Notification;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -16,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.linch.bean.TodayWeather;
+import com.example.linch.util.NetUtil;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -28,7 +26,6 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.HashMap;
 
 /**
@@ -39,6 +36,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private static final  int UPDATE_TODAY_WEATHER = 1;
 
     private ImageView mUpdateBtn;
+    private ImageView mCityBtn;
 
     private TextView  cityTv, timeTv, humidityTv, weekTv, pmDataTv, pmQualityTv, temperatureTv,
                        climateTv, windTv, city_name_Tv, currenttemp;
@@ -62,8 +60,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
 
+        System.out.println(Thread.currentThread().getName());
         mUpdateBtn = (ImageView)findViewById(R.id.title_update_btn); //连接title_update_btn按钮
+        mCityBtn = (ImageView)findViewById(R.id.title_city_manager);
         mUpdateBtn.setOnClickListener(this);
+        mCityBtn.setOnClickListener(this);
         //网咯测试
         if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE){
             Log.d("myWeather","网络OK");
@@ -81,6 +82,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
     }
     @Override
     public void onClick(View view){
+        if(view.getId() == R.id.title_city_manager){
+            Intent i = new Intent(this,SelectCity.class);
+           // startActivity(i);
+            startActivityForResult(i,1);
+        }
         if(view.getId() == R.id.title_update_btn){
             //通过SharedPreferences读取城市id，如果没有定义则缺省为101010100（北京城市）
             SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
@@ -98,6 +104,21 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }
     }
 
+    protected  void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == 1 && resultCode == RESULT_OK){
+            String newCityCode = data.getStringExtra("cityCode");
+            Log.d("myWeather","选择城市代码为"+newCityCode);
+
+            if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE){
+                Log.d("myWeather","网络OK");
+                queryWeatherCode(newCityCode);
+            }
+            else{
+                Log.d("myWeather","网络炸了");
+
+            }
+        }
+    }
     /**
      * 初始化天气信息
      */
@@ -159,6 +180,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private void updateTodayWeather(TodayWeather todayWeather){
         int pm25 = Integer.parseInt(todayWeather.getPm25());
         String type = todayWeather.getType();
+        String []high = todayWeather.getHigh().split(" ");
+        String []low  = todayWeather.getLow().split(" ");
+        String highdata = high.length == 2? high[1] : high[0];
+        String lowdata = low.length == 2? low[1] : low[0];
+
 
         city_name_Tv.setText(todayWeather.getCity()+"天气");
         cityTv.setText(todayWeather.getCity());
@@ -168,7 +194,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         pmDataTv.setText(todayWeather.getPm25());
         pmQualityTv.setText(todayWeather.getQuality());
         weekTv.setText(todayWeather.getDate());
-        temperatureTv.setText(todayWeather.getHigh()+"~"+todayWeather.getLow());
+        temperatureTv.setText(highdata+"~"+ lowdata);
         climateTv.setText(todayWeather.getType());
         windTv.setText("风力："+todayWeather.getFengli());
         //没有风向
@@ -193,8 +219,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
         else{
             pmImg.setImageDrawable(getResources().getDrawable(R.drawable.biz_plugin_weather_greater_300));
         }
-
-        weatherImg.setImageDrawable(getResources().getDrawable(ImgHash.get(type)));
+        //更新天气图片
+        if(ImgHash.containsKey(type)){
+            weatherImg.setImageDrawable(getResources().getDrawable(ImgHash.get(type)));
+        }
 
         Toast.makeText(MainActivity.this, "更新成功!", Toast.LENGTH_SHORT).show();
     }
@@ -210,7 +238,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             public void run() {
                 HttpURLConnection con = null;
                 TodayWeather todayWeather = null;
-
+                System.out.println(Thread.currentThread().getName());
                 try{
                     URL url = new URL(address);
                     con = (HttpURLConnection)url.openConnection();
