@@ -90,7 +90,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         if(view.getId() == R.id.title_update_btn){
             //通过SharedPreferences读取城市id，如果没有定义则缺省为101010100（北京城市）
             SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
-            String cityCode = sharedPreferences.getString("main_city_code","101230705");
+            String cityCode = sharedPreferences.getString("main_city_code","101230701");
             Log.d("myWeather",cityCode);
 
             if(NetUtil.getNetworkState(this)!=NetUtil.NETWORN_NONE){  //确定网络可访问
@@ -184,7 +184,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
         String []low  = todayWeather.getLow().split(" ");
         String highdata = high.length == 2? high[1] : high[0];
         String lowdata = low.length == 2? low[1] : low[0];
-
 
         city_name_Tv.setText(todayWeather.getCity()+"天气");
         cityTv.setText(todayWeather.getCity());
@@ -307,6 +306,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                             todayWeather = new TodayWeather();
                         }
                         if(todayWeather!=null){
+                           // String temp;
                             if(xmlPullParser.getName().equals("city")){
                                 eventType = xmlPullParser.next();
                                 //Log.d("myWeather","city     "+xmlPullParser.getText());
@@ -380,11 +380,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 }
                 //进入下一个元素
                 eventType = xmlPullParser.next();
-
-
             }
-
-
         }
         catch (XmlPullParserException e){
             e.printStackTrace();

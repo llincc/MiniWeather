@@ -19,12 +19,27 @@ public class TodayWeather {
     private String low;
     private String type;
 
+    public TodayWeather(){
+        this.city = "N/A";
+        this.updatetime = "N/A";
+        this.wendu = "N/A";
+        this.shidu = "N/A";
+        this.pm25 = "0";
+        this.quality = "N/A";
+        this.fengxiang = "N/A";
+        this.fengli = "N/A";
+        this.date = "N/A";
+        this.high = "N/A N/A";
+        this.low = "N/A N/A";
+        this.type = "N/A";
+    }
     public String getCity() {
         return city;
     }
 
     public void setCity(String city) {
-        this.city = city;
+
+        this.city = city != null ? city : "N/A" ;
     }
 
 
@@ -33,7 +48,7 @@ public class TodayWeather {
     }
 
     public void setUpdatetime(String updatetime) {
-        this.updatetime = updatetime;
+        this.updatetime = updatetime  != null ? updatetime : "N/A";
     }
 
 
@@ -42,14 +57,16 @@ public class TodayWeather {
     }
 
     public void setWendu(String wendu) {
-        this.wendu = wendu;
+
+        this.wendu = wendu != null ? wendu : "N/A";
     }
     public String getShidu() {
         return shidu;
     }
 
     public void setShidu(String shidu) {
-        this.shidu = shidu;
+
+        this.shidu = shidu != null ? shidu : "N/A";
     }
 
 
@@ -58,7 +75,8 @@ public class TodayWeather {
     }
 
     public void setPm25(String pm25) {
-        this.pm25 = pm25;
+
+        this.pm25 = pm25 != null ? pm25 : "N/A";
     }
 
 
@@ -67,7 +85,8 @@ public class TodayWeather {
     }
 
     public void setQuality(String quality) {
-        this.quality = quality;
+
+        this.quality = quality != null ? quality : "N/A";
     }
 
 
@@ -76,7 +95,8 @@ public class TodayWeather {
     }
 
     public void setFengxiang(String fengxiang) {
-        this.fengxiang = fengxiang;
+
+        this.fengxiang = fengxiang != null ? fengxiang : "N/A";
     }
 
 
@@ -85,7 +105,8 @@ public class TodayWeather {
     }
 
     public void setFengli(String fengli) {
-        this.fengli = fengli;
+
+        this.fengli = fengli != null ? fengli : "N/A";
     }
 
     public String getDate() {
@@ -93,7 +114,8 @@ public class TodayWeather {
     }
 
     public void setDate(String date) {
-        this.date = date;
+
+        this.date = date != null ? date : "N/A";
     }
 
 
@@ -102,7 +124,8 @@ public class TodayWeather {
     }
 
     public void setHigh(String high) {
-        this.high = high;
+
+        this.high = high != null ? high : "N/A N/A";
     }
 
 
@@ -111,7 +134,8 @@ public class TodayWeather {
     }
 
     public void setLow(String low) {
-        this.low = low;
+
+        this.low = low  != null ? low : "N/A";
     }
 
 
@@ -120,7 +144,8 @@ public class TodayWeather {
     }
 
     public void setType(String type) {
-        this.type = type;
+
+        this.type = type != null ? type : "N/A";
     }
 
     @Override
@@ -138,7 +163,6 @@ public class TodayWeather {
                 "high='" + high +  '\'' +
                 "low='" + low +  '\'' +
                 "type='" + type +  '\'' ;
-
     }
 
 }
