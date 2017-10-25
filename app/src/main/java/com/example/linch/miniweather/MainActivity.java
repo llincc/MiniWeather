@@ -34,6 +34,8 @@ import java.util.HashMap;
 
 public class MainActivity extends Activity implements View.OnClickListener{
     private static final  int UPDATE_TODAY_WEATHER = 1;
+    private static final  String WEATHER_CODE = "citykey=";
+    private static final  String WEATHER_NAME = "city=";
 
     private ImageView mUpdateBtn;
     private ImageView mCityBtn;
@@ -95,7 +97,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
             if(NetUtil.getNetworkState(this)!=NetUtil.NETWORN_NONE){  //确定网络可访问
                 Log.d("myWeather","网络OK");
-                queryWeatherCode(cityCode);
+                queryWeatherCode(cityCode,WEATHER_CODE);
             }
             else{
                 Log.d("myWeather","网络炸了");
@@ -106,12 +108,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     protected  void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == 1 && resultCode == RESULT_OK){
-            String newCityCode = data.getStringExtra("cityCode");
-            Log.d("myWeather","选择城市代码为"+newCityCode);
+            //String newCityCode = data.getStringExtra("cityCode");
+           // Log.d("myWeather","选择城市代码为"+newCityCode);
+            String newCityName = data.getStringExtra("cityName");
 
             if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE){
                 Log.d("myWeather","网络OK");
-                queryWeatherCode(newCityCode);
+                queryWeatherCode(newCityName,WEATHER_NAME);
             }
             else{
                 Log.d("myWeather","网络炸了");
@@ -229,8 +232,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
      * 获取cityCode所指的城市的天气信息
      * @param cityCode   城市id
      */
-    private void queryWeatherCode(String cityCode){
-        final String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
+    private void queryWeatherCode(String cityCode,String type){
+        if(!type.equals(WEATHER_CODE)&&!type.equals(WEATHER_NAME));
+        final String address = "http://wthrcdn.etouch.cn/WeatherApi?"+type+cityCode;
         Log.d("myWeather",address);
         new Thread(new Runnable() {
             @Override

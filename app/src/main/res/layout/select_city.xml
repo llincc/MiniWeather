@@ -7,7 +7,10 @@
         android:id="@+id/city_title"
         android:layout_width="fill_parent"
         android:layout_height="45.0dip"
-        android:background="#ffcd2626">
+        android:background="#ffcd2626"
+
+        android:focusable="true"
+        android:focusableInTouchMode="true">
         <TextView
             android:id="@+id/title_name"
             android:layout_width="match_parent"
@@ -33,11 +36,39 @@
             android:background="#A71717"
             android:gravity="center"/>
     </RelativeLayout>
+
+    <EditText
+        android:id="@+id/city_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="输入城市(汉字、拼音)"
+        android:ems="10"
+        android:maxLines="1"
+        android:layout_below="@id/city_title"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginRight="10dp"
+        android:paddingTop="4dp"
+        android:paddingLeft="4dp"
+        android:paddingBottom="4dp"
+        android:textColor="@android:color/black"
+        android:textColorHint="#acb6b6"
+        android:textSize="20sp"
+        android:textCursorDrawable="@drawable/edittext_cursor"
+        android:drawableLeft="@drawable/search_icon64"
+        android:background="@drawable/edittext_selector"
+        android:drawablePadding="8dp"/>
     
     <ListView
         android:id="@+id/city_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/city_title"/>
+        android:layout_below="@id/city_search"
+        android:background="#ffffffff"
+        android:dividerHeight="1px"
+        android:divider="#d9d5d5"/>
+
+    
 
 </RelativeLayout>

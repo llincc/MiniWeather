@@ -25,6 +25,7 @@ public class MyApplication extends Application {
     private CityDB mCityDB;
 
     private List<City> mCityList;
+    private List<String> cityList;
     @Override
     public void onCreate(){
         super.onCreate();
@@ -38,6 +39,7 @@ public class MyApplication extends Application {
 
     private void initCityList(){
         mCityList = new ArrayList<City>();
+        cityList = new ArrayList<String>();
 
         new Thread(new Runnable() {
             @Override
@@ -54,13 +56,18 @@ public class MyApplication extends Application {
             i++;
             String cityName = city.getCity();
             String cityCode = city.getNumber();
-            Log.d(TAG,cityCode+":"+cityName);
+            cityList.add(cityName);
+           // Log.d(TAG,cityCode+":"+cityName);
         }
+        //System.out.println("城市数量"+cityList.size());
         Log.d(TAG,"i="+i);
         return true;
     }
-    public List<City> getCityList(){
+    public List<City> getmCityList(){
         return mCityList;
+    }
+    public List<String> getCityList(){
+        return cityList;
     }
     public static MyApplication getInstance(){
         return myApplication;
