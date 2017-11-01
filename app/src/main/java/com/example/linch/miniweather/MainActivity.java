@@ -6,12 +6,16 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.linch.adapters.ViewPagerAdapter;
 import com.example.linch.bean.TodayWeather;
 import com.example.linch.util.NetUtil;
 
@@ -26,7 +30,9 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by linch on 2017/9/20.
@@ -43,6 +49,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private TextView  cityTv, timeTv, humidityTv, weekTv, pmDataTv, pmQualityTv, temperatureTv,
                        climateTv, windTv, city_name_Tv, currenttemp;
     private ImageView weatherImg, pmImg;
+
+    private ViewPagerAdapter viewPagerAdapter;
+    private ViewPager viewPager;
+    private List<View> views;
 
     private HashMap<String ,Integer> ImgHash;
     private Handler mHandler = new Handler(){
@@ -85,9 +95,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
     @Override
     public void onClick(View view){
         if(view.getId() == R.id.title_city_manager){
-            Intent i = new Intent(this,SelectCity.class);
-           // startActivity(i);
-            startActivityForResult(i,1);
+            Intent intent = new Intent(this,SelectCity.class);
+            intent.putExtra("currentCity",cityTv.getText());
+           // startActivity(i)
+            startActivityForResult(intent,1);
         }
         if(view.getId() == R.id.title_update_btn){
             //通过SharedPreferences读取城市id，如果没有定义则缺省为101010100（北京城市）
@@ -114,6 +125,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
             if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE){
                 Log.d("myWeather","网络OK");
+                //if(city)
                 queryWeatherCode(newCityName,WEATHER_NAME);
             }
             else{
@@ -151,6 +163,19 @@ public class MainActivity extends Activity implements View.OnClickListener{
         temperatureTv.setText("N/A");
         climateTv.setText("N/A");
         windTv.setText("N/A");
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        View one_page = inflater.inflate(R.layout.page1viewer,null);
+        View two_page = inflater.inflate(R.layout.page2viewer,null);
+
+        views = new ArrayList<View>();
+        views.add(one_page);
+        views.add(two_page);
+
+        viewPagerAdapter = new ViewPagerAdapter(views,this);
+        viewPager = (ViewPager)findViewById(R.id.viewpager);
+        viewPager.setAdapter(viewPagerAdapter);
     }
     private void initImage(){
         ImgHash = new HashMap<String ,Integer>();

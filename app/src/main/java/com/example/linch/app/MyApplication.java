@@ -48,7 +48,6 @@ public class MyApplication extends Application {
             }
         }).start();
     }
-
     private boolean prepareCityList(){
         mCityList = mCityDB.getAllCity();
         int i = 0;

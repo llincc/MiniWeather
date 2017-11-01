@@ -86,7 +86,7 @@ public class TodayWeather {
 
     public void setQuality(String quality) {
 
-        this.quality = quality != null ? quality : "N/A";
+        this.quality = quality != null ? quality : "无";
     }
 
 
