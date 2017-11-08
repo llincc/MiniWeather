@@ -103,12 +103,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
         if(view.getId() == R.id.title_update_btn){
             //通过SharedPreferences读取城市id，如果没有定义则缺省为101010100（北京城市）
             SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
-            String cityCode = sharedPreferences.getString("main_city_code","101230701");
+            String cityCode = sharedPreferences.getString("main_city_code","101010100");
             Log.d("myWeather",cityCode);
 
             if(NetUtil.getNetworkState(this)!=NetUtil.NETWORN_NONE){  //确定网络可访问
                 Log.d("myWeather","网络OK");
-                queryWeatherCode(cityCode,WEATHER_CODE);
+                queryWeatherCode(cityCode);
             }
             else{
                 Log.d("myWeather","网络炸了");
@@ -121,12 +121,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
         if(requestCode == 1 && resultCode == RESULT_OK){
             //String newCityCode = data.getStringExtra("cityCode");
            // Log.d("myWeather","选择城市代码为"+newCityCode);
-            String newCityName = data.getStringExtra("cityName");
-
+            String newCityCode = data.getStringExtra("cityCode");
             if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE){
                 Log.d("myWeather","网络OK");
                 //if(city)
-                queryWeatherCode(newCityName,WEATHER_NAME);
+                queryWeatherCode(newCityCode);
             }
             else{
                 Log.d("myWeather","网络炸了");
@@ -257,9 +256,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
      * 获取cityCode所指的城市的天气信息
      * @param cityCode   城市id
      */
-    private void queryWeatherCode(String cityCode,String type){
-        if(!type.equals(WEATHER_CODE)&&!type.equals(WEATHER_NAME));
-        final String address = "http://wthrcdn.etouch.cn/WeatherApi?"+type+cityCode;
+    private void queryWeatherCode(String cityCode){
+        final String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey="+cityCode;
         Log.d("myWeather",address);
         new Thread(new Runnable() {
             @Override
@@ -286,7 +284,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     todayWeather = parseXML(responseStr);
                     if(todayWeather != null){
                         Log.d("myWeather", todayWeather.toString());
-
+                        //发送信息到Handler
                         Message msg = new Message();
                         msg.what = UPDATE_TODAY_WEATHER;
                         msg.obj = todayWeather;

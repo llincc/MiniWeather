@@ -1,6 +1,7 @@
 package com.example.linch.app;
 
 import android.app.Application;
+import android.nfc.Tag;
 import android.os.Environment;
 import android.renderscript.ScriptGroup;
 import android.util.Log;
@@ -13,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -38,8 +40,8 @@ public class MyApplication extends Application {
     }
 
     private void initCityList(){
-        mCityList = new ArrayList<City>();
-        cityList = new ArrayList<String>();
+        //mCityList = new LinkedList<City>();
+        cityList  = new LinkedList<String>();
 
         new Thread(new Runnable() {
             @Override
@@ -53,9 +55,8 @@ public class MyApplication extends Application {
         int i = 0;
         for(City city : mCityList){
             i++;
-            String cityName = city.getCity();
-            String cityCode = city.getNumber();
-            cityList.add(cityName);
+            //String cityCode = city.getNumber();
+            cityList.add(city.getCity()+" "+city.getProvince());
            // Log.d(TAG,cityCode+":"+cityName);
         }
         //System.out.println("城市数量"+cityList.size());
@@ -65,9 +66,45 @@ public class MyApplication extends Application {
     public List<City> getmCityList(){
         return mCityList;
     }
+    //返回所有城市列表
     public List<String> getCityList(){
         return cityList;
     }
+    //对比城市名和省名返回cityCode
+    public String getCityCode(String cityname, String province){
+         for(City city: mCityList){
+             if(city.getProvince().equals(province)&&city.getCity().equals(cityname)){
+                 return city.getNumber();
+             }
+         }
+         return "";
+    }
+    //搜索
+
+    public List<String> getCityList(String preChar){
+        //System.out.println(TAG+Thread.currentThread().getName());
+        List<String> SearchResult =new LinkedList<String>();
+        for(City city: mCityList){
+             if(city.getCity().startsWith(preChar)){
+                 SearchResult.add(city.getCity()+" "+city.getProvince());
+                 continue;
+             }
+             else{
+                 preChar = preChar.toUpperCase();
+             }
+             if(city.getAllfirstPY().startsWith(preChar)){
+                 SearchResult.add(city.getCity()+" "+city.getProvince());
+             }
+             else if(city.getAllPY().startsWith(preChar)){
+                 SearchResult.add(city.getCity()+" "+city.getProvince());
+             }
+             else if(city.getFirstPY().startsWith(preChar)) {
+                 SearchResult.add(city.getCity()+" "+city.getProvince());
+             }
+        }
+        return SearchResult;
+    }
+    //单例模式，返回MyApplication对象
     public static MyApplication getInstance(){
         return myApplication;
     }

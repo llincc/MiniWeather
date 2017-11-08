@@ -2,6 +2,7 @@ package com.example.linch.miniweather;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -53,11 +54,9 @@ public class SelectCity extends Activity implements View.OnClickListener,Adapter
         currentCity = it_get.getStringExtra("currentCity");
         currentCity = currentCity.equals("N/A") ? "无" : currentCity;
         titleCity.setText("当前天气:"+currentCity);
-
-
-
         //初始化城市列表
-        initCityListView();
+        cityList = MyApplication.getInstance().getCityList();
+        initCityListView(cityList);
 
 
 
@@ -89,7 +88,9 @@ public class SelectCity extends Activity implements View.OnClickListener,Adapter
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        cityList = MyApplication.getInstance().getCityList();
+        //返回城市列表
+        cityList = MyApplication.getInstance().getCityList(s.toString());
+        initCityListView(cityList);
     }
 
     @Override
@@ -101,25 +102,27 @@ public class SelectCity extends Activity implements View.OnClickListener,Adapter
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l){
 
         Log.d("Select:",cityList.get(i));
+        String []city_province = cityList.get(i).split(" ");
+        String citycode = MyApplication.getInstance().getCityCode(city_province[0],city_province[1]);
+        //cityCode保存到SharedPreference
+        SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("main_city_code",citycode);
+        editor.commit();
+        //发送Intent
         Intent intent = new Intent(this,MainActivity.class);
-        intent.putExtra("cityName",cityList.get(i));
-
+        intent.putExtra("cityCode",citycode);
         Toast.makeText(SelectCity.this,"选择城市："+cityList.get(i),Toast.LENGTH_SHORT).show();
         setResult(RESULT_OK,intent);
         finish();
     }
-    //初始化城市列表
-    private void initCityListView(){
-        System.out.println("初始化列表");
-        mApplication = MyApplication.getInstance();
-        //MyApplication mApplication= (MyApplication) this.getApplication();
-        cityList =  mApplication.getCityList();
-
-        //System.out.println("当前线程"+Thread.currentThread().getName());
-       // System.out.println("城市数量"+String.valueOf(cityList.size()));
+    //更新城市列表
+    private void initCityListView(List<String> city_province){
+        //System.out.println("初始化列表");
+        //cityList =  MyApplication.getInstance().getCityList();
         //Adapter
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(SelectCity.this,R.layout.list_item_text,cityList);
-
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(SelectCity.this,R.layout.list_item_text,city_province);
+        //更新ListView
         cityListView.setAdapter(adapter);
     }
 }
