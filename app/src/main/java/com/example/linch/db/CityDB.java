@@ -8,12 +8,13 @@ import com.example.linch.bean.City;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * Created by linch on 2017/10/18.
  */
 
-public class CityDB {
+public class CityDB implements Callable<List<City>>{
     public   static final  String CITY_DB_NAME = "city.db";
     private  static final  String CITY_TABLE_NAME = "city";
     private SQLiteDatabase db;
@@ -38,4 +39,8 @@ public class CityDB {
         return list;
     }
 
+    @Override
+    public List<City> call() throws Exception {
+        return getAllCity();
+    }
 }

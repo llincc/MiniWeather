@@ -76,7 +76,7 @@ public class TodayWeather {
 
     public void setPm25(String pm25) {
 
-        this.pm25 = pm25 != null ? pm25 : "N/A";
+        this.pm25 = pm25 != null ? pm25 : "0";
     }
 
 
@@ -124,8 +124,7 @@ public class TodayWeather {
     }
 
     public void setHigh(String high) {
-
-        this.high = high != null ? high : "N/A N/A";
+        this.high = high != null ? high.replaceFirst("高温\\s","") : "N/A";
     }
 
 
@@ -134,8 +133,7 @@ public class TodayWeather {
     }
 
     public void setLow(String low) {
-
-        this.low = low  != null ? low : "N/A";
+        this.low = low != null ? low.replaceFirst("低温\\s","") : "N/A";
     }
 
 

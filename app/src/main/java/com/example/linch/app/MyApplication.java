@@ -1,21 +1,22 @@
 package com.example.linch.app;
 
 import android.app.Application;
-import android.nfc.Tag;
 import android.os.Environment;
-import android.renderscript.ScriptGroup;
 import android.util.Log;
 
 import com.example.linch.bean.City;
+import com.example.linch.controller.ThreadPoolController;
 import com.example.linch.db.CityDB;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by linch on 2017/10/18.
@@ -32,34 +33,38 @@ public class MyApplication extends Application {
     public void onCreate(){
         super.onCreate();
         Log.d(TAG,"MyApplication->onCreate");
+        //创建Application实例对象
         myApplication = this;
-
-        //CityDB  mCityDB
-        mCityDB = openCityDB();
         initCityList();
     }
-
     private void initCityList(){
-        //mCityList = new LinkedList<City>();
         cityList  = new LinkedList<String>();
+        //CityDB  mCityDB
+        //初始化数据库操作任务
+        CityDB mCityDB = openCityDB();
+        FutureTask<List<City>> fetchTask = new FutureTask<List<City>>(mCityDB);
+        //将任务提交到线程池
+        ThreadPoolExecutor executor = ThreadPoolController.getInstance().getExecutor();
+        executor.submit(fetchTask);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                prepareCityList();
-            }
-        }).start();
+        try{
+            mCityList = fetchTask.get();
+            prepareCityList();
+        }
+        catch (InterruptedException e){
+            e.printStackTrace();
+        }
+        catch (ExecutionException e){
+            e.printStackTrace();
+        }
     }
     private boolean prepareCityList(){
-        mCityList = mCityDB.getAllCity();
         int i = 0;
+        //从mCityList复制城市名和省份到cityList
         for(City city : mCityList){
             i++;
-            //String cityCode = city.getNumber();
             cityList.add(city.getCity()+" "+city.getProvince());
-           // Log.d(TAG,cityCode+":"+cityName);
         }
-        //System.out.println("城市数量"+cityList.size());
         Log.d(TAG,"i="+i);
         return true;
     }
@@ -78,31 +83,6 @@ public class MyApplication extends Application {
              }
          }
          return "";
-    }
-    //搜索
-
-    public List<String> getCityList(String preChar){
-        //System.out.println(TAG+Thread.currentThread().getName());
-        List<String> SearchResult =new LinkedList<String>();
-        for(City city: mCityList){
-             if(city.getCity().startsWith(preChar)){
-                 SearchResult.add(city.getCity()+" "+city.getProvince());
-                 continue;
-             }
-             else{
-                 preChar = preChar.toUpperCase();
-             }
-             if(city.getAllfirstPY().startsWith(preChar)){
-                 SearchResult.add(city.getCity()+" "+city.getProvince());
-             }
-             else if(city.getAllPY().startsWith(preChar)){
-                 SearchResult.add(city.getCity()+" "+city.getProvince());
-             }
-             else if(city.getFirstPY().startsWith(preChar)) {
-                 SearchResult.add(city.getCity()+" "+city.getProvince());
-             }
-        }
-        return SearchResult;
     }
     //单例模式，返回MyApplication对象
     public static MyApplication getInstance(){

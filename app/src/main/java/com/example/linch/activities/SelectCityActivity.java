@@ -1,4 +1,4 @@
-package com.example.linch.miniweather;
+package com.example.linch.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,15 +17,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.linch.app.MyApplication;
-import com.example.linch.util.NetUtil;
+import com.example.linch.controller.ThreadPoolController;
+import com.example.linch.miniweather.R;
+import com.example.linch.service.CitySearchService;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by linch on 2017/10/18.
  */
 
-public class SelectCity extends Activity implements View.OnClickListener,AdapterView.OnItemClickListener,TextWatcher{
+public class SelectCityActivity extends Activity implements View.OnClickListener,AdapterView.OnItemClickListener,TextWatcher{
     private ImageView mBackBtn;
     private MyApplication mApplication;
     private ListView cityListView;
@@ -66,20 +71,15 @@ public class SelectCity extends Activity implements View.OnClickListener,Adapter
     public void onClick(View v){
          switch (v.getId()){
              case R.id.title_back:
-                 Intent i = new Intent(this,MainActivity.class);
-                 //i.putExtra("cityCode","101160101");
-                 //setResult(RESULT_OK,i);
-                 finish();
+                 //因为直接返回，所以从SharePreference获取citycode;
+                 //String citycode = getSharedPreferences("config",MODE_PRIVATE).getString("main_city_code","101010100");
+                 //跳转到MainActivity
+                 //directToMain(citycode,currentCity);
+                 this.finish();//直接结束Acitivity不发送Intent
                  break;
              default:
                  break;
          }
-    }
-
-    protected  void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(requestCode == 1 && resultCode == RESULT_OK){
-
-        }
     }
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -88,9 +88,9 @@ public class SelectCity extends Activity implements View.OnClickListener,Adapter
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        //返回城市列表
-        cityList = MyApplication.getInstance().getCityList(s.toString());
-        initCityListView(cityList);
+        //cityList = new LinkedList<String>();
+        //开始搜索
+        startSearch(s.toString());
     }
 
     @Override
@@ -105,14 +105,18 @@ public class SelectCity extends Activity implements View.OnClickListener,Adapter
         String []city_province = cityList.get(i).split(" ");
         String citycode = MyApplication.getInstance().getCityCode(city_province[0],city_province[1]);
         //cityCode保存到SharedPreference
-        SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        SharedPreferences.Editor editor = getSharedPreferences("config",MODE_PRIVATE).edit();
         editor.putString("main_city_code",citycode);
         editor.commit();
+        //执行跳转到主界面程序
+        directToMain(citycode,cityList.get(i));
+    }
+    //跳转到MainActivity
+    private void directToMain(String citycode, String cityname){
         //发送Intent
         Intent intent = new Intent(this,MainActivity.class);
         intent.putExtra("cityCode",citycode);
-        Toast.makeText(SelectCity.this,"选择城市："+cityList.get(i),Toast.LENGTH_SHORT).show();
+        Toast.makeText(SelectCityActivity.this,"选择城市："+cityname,Toast.LENGTH_SHORT).show();
         setResult(RESULT_OK,intent);
         finish();
     }
@@ -121,8 +125,29 @@ public class SelectCity extends Activity implements View.OnClickListener,Adapter
         //System.out.println("初始化列表");
         //cityList =  MyApplication.getInstance().getCityList();
         //Adapter
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(SelectCity.this,R.layout.list_item_text,city_province);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(SelectCityActivity.this,R.layout.list_item_text,city_province);
         //更新ListView
         cityListView.setAdapter(adapter);
+    }
+    private void startSearch(String preChar){
+        //创建搜索任务
+        CitySearchService searchCallable =  new CitySearchService(preChar,MyApplication.getInstance().getmCityList());
+        FutureTask<List<String>> fetchTask = new FutureTask<List<String>>(searchCallable);
+        //往线程池添加任务
+        ThreadPoolExecutor executor = ThreadPoolController.getInstance().getExecutor();
+        executor.submit(fetchTask);
+
+        try {
+            //获取线程返回的值
+            cityList = fetchTask.get();
+            initCityListView(cityList);
+        }
+        catch (InterruptedException e){
+           // System.out.println();
+            e.printStackTrace();
+        }
+        catch (ExecutionException e){
+            e.printStackTrace();
+        }
     }
 }
