@@ -1,4 +1,4 @@
-package com.example.linch.activities;
+package com.example.linch.activity;
 
 import android.app.Activity;
 import android.content.Intent;

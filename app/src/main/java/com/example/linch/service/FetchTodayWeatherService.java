@@ -7,7 +7,7 @@ package com.example.linch.service;
 
 import android.os.Message;
 
-import com.example.linch.activities.MainActivity;
+import com.example.linch.activity.MainActivity;
 import com.example.linch.bean.TodayWeather;
 import com.example.linch.util.XmlParserUtil;
 

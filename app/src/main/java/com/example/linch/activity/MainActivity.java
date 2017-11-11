@@ -1,4 +1,4 @@
-package com.example.linch.activities;
+package com.example.linch.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,11 +13,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.linch.adapters.ViewPagerAdapter;
+import com.example.linch.adapter.ViewPagerAdapter;
 import com.example.linch.bean.TodayWeather;
 import com.example.linch.controller.ThreadPoolController;
 import com.example.linch.miniweather.R;
 import com.example.linch.service.FetchTodayWeatherService;
+import com.example.linch.service.UpdateImageRotateService;
 import com.example.linch.util.NetUtil;
 
 import java.util.ArrayList;
@@ -96,7 +97,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
             if(NetUtil.getNetworkState(this)!=NetUtil.NETWORN_NONE){  //确定网络可访问
                 Log.d("myWeather","网络OK");
-                queryWeatherCode(cityCode);
+               // queryWeatherCode(cityCode);
+                fetchWeather(cityCode);
             }
             else{
                 Log.d("myWeather","网络连接失败");
@@ -254,6 +256,17 @@ public class MainActivity extends Activity implements View.OnClickListener{
         ThreadPoolExecutor executor = ThreadPoolController.getInstance().getExecutor();
         executor.submit(new FetchTodayWeatherService(address,this));
 
+    }
+
+    /**
+     * 控制图标转动，获取天气信息
+     * @param cityCode
+     */
+    private void fetchWeather(String cityCode){
+        UpdateImageRotateService updateImageRotateService = new UpdateImageRotateService(this.mUpdateBtn,this);
+        updateImageRotateService.startRotate();
+        queryWeatherCode(cityCode);
+        //updateImageRotateService.stopRotate();
     }
     public Handler getmHandler(){
         return mHandler;

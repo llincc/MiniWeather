@@ -1,4 +1,4 @@
-package com.example.linch.adapters;
+package com.example.linch.adapter;
 
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
