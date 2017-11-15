@@ -19,6 +19,41 @@ public class TodayWeather {
     private String low;
     private String type;
 
+    private String fengxiang0;
+    private String fengli0;
+    private String date0;
+    private String high0;
+    private String low0;
+    private String type0;
+
+    private String fengxiang1;
+    private String fengli1;
+    private String date1;
+    private String high1;
+    private String low1;
+    private String type1;
+
+    private String fengxiang2;
+    private String fengli2;
+    private String date2;
+    private String high2;
+    private String low2;
+    private String type2;
+
+    private String fengxiang3;
+    private String fengli3;
+    private String date3;
+    private String high3;
+    private String low3;
+    private String type3;
+
+    private String fengxiang4;
+    private String fengli4;
+    private String date4;
+    private String high4;
+    private String low4;
+    private String type4;
+
     public TodayWeather(){
         this.city = "N/A";
         this.updatetime = "N/A";
@@ -29,9 +64,40 @@ public class TodayWeather {
         this.fengxiang = "N/A";
         this.fengli = "N/A";
         this.date = "N/A";
-        this.high = "N/A N/A";
-        this.low = "N/A N/A";
+        this.high = "N/A";
+        this.low = "N/A";
         this.type = "N/A";
+
+        //明天天气
+        this.fengxiang1 = "N/A";
+        this.fengli1 = "N/A";
+        this.date1 = "N/A";
+        this.high1 = "N/A";
+        this.low1 = "N/A";
+        this.type1 = "N/A";
+
+        //后天天气
+        this.fengxiang2 = "N/A";
+        this.fengli2 = "N/A";
+        this.date2 = "N/A";
+        this.high2 = "N/A";
+        this.low2 = "N/A";
+        this.type2 = "N/A";
+
+        //大后天天气
+        this.fengxiang3 = "N/A";
+        this.fengli3 = "N/A";
+        this.date3 = "N/A";
+        this.high3 = "N/A";
+        this.low3 = "N/A";
+        this.type3 = "N/A";
+        //大大后天天气
+        this.fengxiang4 = "N/A";
+        this.fengli4 = "N/A";
+        this.date4 = "N/A";
+        this.high4 = "N/A";
+        this.low4 = "N/A";
+        this.type4 = "N/A";
     }
     public String getCity() {
         return city;
@@ -146,6 +212,246 @@ public class TodayWeather {
         this.type = type != null ? type : "N/A";
     }
 
+    public String getFengxiang0() {
+        return fengxiang0;
+    }
+
+    public void setFengxiang0(String fengxiang0) {
+        this.fengxiang0 = fengxiang0 != null ? fengxiang0 : "N/A";
+    }
+
+    public String getFengli0() {
+        return fengli0 ;
+    }
+
+    public void setFengli0(String fengli0) {
+        this.fengli0 = fengli0 != null ?  fengli0  : "N/A";
+    }
+
+    public String getDate0() {
+        return date0;
+    }
+
+    public void setDate0(String date0) {
+        this.date0 = date0 != null ? date0 : "N/A";
+    }
+
+    public String getHigh0() {
+        return high0;
+    }
+
+    public void setHigh0(String high0) {
+        this.high0 = high0!= null ? high0.replaceFirst("高温\\s","") : "N/A";
+    }
+
+    public String getLow0() {
+        return low0;
+    }
+
+    public void setLow0(String low0) {
+        this.low0 = low0 != null ? low0.replaceFirst("低温\\s","") : "N/A";
+    }
+
+    public String getType0() {
+        return type0 != null ? type : "N/A";
+    }
+
+    public void setType0(String type0) {
+        this.type0 = type0;
+    }
+
+    public String getFengxiang1() {
+        return fengxiang1;
+    }
+
+    public void setFengxiang1(String fengxiang1) {
+        this.fengxiang1 = fengxiang1 != null ? fengxiang1: "N/A";
+    }
+
+    public String getFengli1() {
+        return fengli1;
+    }
+
+    public void setFengli1(String fengli1) {
+        this.fengli1 = fengli1 != null ?  fengli1 : "N/A";
+    }
+
+    public String getDate1() {
+        return date1;
+    }
+
+    public void setDate1(String date1) {
+        this.date1 = date1 != null ?  date1  : "N/A";
+    }
+
+    public String getHigh1() {
+        return high1;
+    }
+
+    public void setHigh1(String high1) {
+        this.high1 = high1  != null ?  high1.replaceFirst("高温\\s","") : "N/A";;
+    }
+
+    public String getLow1() {
+        return low1;
+    }
+
+    public void setLow1(String low1) {
+        this.low1 = low1  != null ? low1.replaceFirst("低温\\s","") : "N/A";;;
+    }
+
+    public String getType1() {
+        return type1;
+    }
+
+    public void setType1(String type1) {
+        this.type1 = type1 != null ?  type1  : "N/A";;
+    }
+
+    public String getFengxiang2() {
+        return fengxiang2;
+    }
+
+    public void setFengxiang2(String fengxiang2) {
+        this.fengxiang2 = fengxiang2 != null ?  fengxiang2 : "N/A";;
+    }
+
+    public String getFengli2() {
+        return fengli2;
+    }
+
+    public void setFengli2(String fengli2) {
+        this.fengli2 = fengli2 != null ? fengli2 : "N/A";;
+    }
+
+    public String getDate2() {
+        return date2;
+    }
+
+    public void setDate2(String date2) {
+        this.date2 = date2 != null ? date2 : "N/A";;
+    }
+
+    public String getHigh2() {
+        return high2;
+    }
+
+    public void setHigh2(String high2) {
+        this.high2 = high2 != null ?  high2.replaceFirst("高温\\s","") : "N/A";
+    }
+
+    public String getLow2() {
+        return low2;
+    }
+
+    public void setLow2(String low2) {
+        this.low2 = low2 != null ? low2.replaceFirst("低温\\s","") : "N/A";;
+    }
+
+    public String getType2() {
+        return type2;
+    }
+
+    public void setType2(String type2) {
+        this.type2 = type2 != null ? type2 : "N/A";
+    }
+
+    public String getFengxiang3() {
+        return fengxiang3 ;
+    }
+
+    public void setFengxiang3(String fengxiang3) {
+        this.fengxiang3 = fengxiang3 != null ? fengxiang3 : "N/A";
+    }
+
+    public String getFengli3() {
+        return fengli3;
+    }
+
+    public void setFengli3(String fengli3) {
+        this.fengli3 = fengli3  != null ? fengli3 : "N/A";
+    }
+
+    public String getDate3() {
+        return date3;
+    }
+
+    public void setDate3(String date3) {
+        this.date3 = date3  != null ? date3 : "N/A";;
+    }
+
+    public String getHigh3() {
+        return high3;
+    }
+
+    public void setHigh3(String high3) {
+        this.high3 = high3 != null ? high3.replaceFirst("高温\\s","") : "N/A";;
+    }
+
+    public String getLow3() {
+        return low3;
+    }
+
+    public void setLow3(String low3) {
+        this.low3 = low3 != null ? low3.replaceFirst("低温\\s","") : "N/A";;
+    }
+
+    public String getType3() {
+        return type3;
+    }
+
+    public void setType3(String type3) {
+        this.type3 = type3 != null ? type3  : "N/A";; ;
+    }
+
+    public String getFengxiang4() {
+        return fengxiang4;
+    }
+
+    public void setFengxiang4(String fengxiang4) {
+        this.fengxiang4 = fengxiang4  != null ? fengxiang4  : "N/A";;;
+    }
+
+    public String getFengli4() {
+        return fengli4;
+    }
+
+    public void setFengli4(String fengli4) {
+        this.fengli4 = fengli4  != null ? fengli4  : "N/A";;;
+    }
+
+    public String getDate4() {
+        return date4;
+    }
+
+    public void setDate4(String date4) {
+        this.date4 = date4  != null ? date4 : "N/A";;;
+    }
+
+    public String getHigh4() {
+        return high4;
+    }
+
+    public void setHigh4(String high4) {
+        this.high4 = high4 != null ? high4.replaceFirst("高温\\s","") : "N/A";;
+    }
+
+    public String getLow4() {
+        return low4;
+    }
+
+    public void setLow4(String low4) {
+        this.low4 = low4 != null ? low4.replaceFirst("低温\\s","") : "N/A";;
+    }
+
+    public String getType4() {
+        return type4;
+    }
+
+    public void setType4(String type4) {
+        this.type4 = type4  != null ? type4  : "N/A";;;
+    }
+
     @Override
     public String toString(){
         return "TodayWeather{"+
@@ -154,13 +460,37 @@ public class TodayWeather {
                 "wendu='" + wendu +  '\'' +
                 "shidu='" + shidu +  '\'' +
                 "pm25='" + pm25 +  '\'' +
-                "quality='" + quality +  '\'' +
+                "quality='" + quality +  '\'' + "\n"+
                 "fengxiang='" + fengxiang +  '\'' +
                 "fengli='" + fengli +  '\'' +
                 "date='" + date +  '\'' +
                 "high='" + high +  '\'' +
                 "low='" + low +  '\'' +
-                "type='" + type +  '\'' ;
+                "type='" + type +  '\''+
+                "fengxiang1='" + fengxiang1 +  '\'' + "\n"+
+                "fengli1='" + fengli1 +  '\'' +
+                "date1='" + date1 +  '\'' +
+                "high1='" + high1 +  '\'' +
+                "low1='" + low1 +  '\'' +
+                "type1='" + type1 +  '\''+
+                "fengxiang2='" + fengxiang2 +  '\'' + "\n"+
+                "fengli2='" + fengli2 +  '\'' +
+                "date2='" + date2 +  '\'' +
+                "high2='" + high2 +  '\'' +
+                "low2='" + low2 +  '\'' +
+                "type2='" + type2 +  '\''+
+                "fengxiang3='" + fengxiang3 +  '\'' + "\n"+
+                "fengli3='" + fengli3 +  '\'' +
+                "date3='" + date3 +  '\'' +
+                "high3='" + high3 +  '\'' +
+                "low3='" + low3 +  '\'' +
+                "type3='" + type3 +  '\''+
+                "fengxiang4='" + fengxiang4 +  '\'' + "\n"+
+                "fengli4='" + fengli4 +  '\'' +
+                "date4='" + date4 +  '\'' +
+                "high4='" + high4 +  '\'' +
+                "low4='" + low4 +  '\'' +
+                "type4='" + type4 +  '\''+"}";
     }
 
 }

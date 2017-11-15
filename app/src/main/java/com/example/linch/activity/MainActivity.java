@@ -14,11 +14,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.linch.adapter.ViewPagerAdapter;
+import com.example.linch.app.MyApplication;
 import com.example.linch.bean.TodayWeather;
 import com.example.linch.controller.ThreadPoolController;
 import com.example.linch.miniweather.R;
 import com.example.linch.service.FetchTodayWeatherService;
 import com.example.linch.service.UpdateImageRotateService;
+import com.example.linch.util.ButtonSlop;
 import com.example.linch.util.NetUtil;
 
 import java.util.ArrayList;
@@ -39,21 +41,22 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     private TextView  cityTv, timeTv, humidityTv, weekTv, pmDataTv, pmQualityTv, temperatureTv,
                        climateTv, windTv, city_name_Tv, currenttemp;
+    //viewAdapter
 
+    private TextView  date1, climate1, temperature1, wind1, date2, climate2, temperature2, wind2,
+                       date3, climate3, temperature3, wind3, date4, climate4, temperature4, wind4;
+    private ImageView weather_img1, weather_img2, weather_img3, weather_img4;
     private ViewPagerAdapter viewPagerAdapter;
     private ViewPager viewPager;
     private List<View> views;
-
-    private HashMap<String ,Integer> ImgHash;
 
     @Override
     protected void onCreate(Bundle savedInstanceState ){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
-
         //System.out.println(Thread.currentThread().getName());
         mUpdateBtn = (ImageView)findViewById(R.id.title_update_btn); //title_update_btn按钮
-        mCityBtn = (ImageView)findViewById(R.id.title_city_manager); //title_city_manager按钮
+        mCityBtn =   (ImageView)findViewById(R.id.title_city_manager); //title_city_manager按钮
         mUpdateBtn.setOnClickListener(this);
         mCityBtn.setOnClickListener(this);
         //网咯测试
@@ -67,14 +70,18 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }
 
         initAllViews();
-        initImage();
     }
-    //Handler负责接收子线程发送的消息并更新UI
+    /**
+     * Handler负责接收子线程发送的消息并更新UI
+     */
     private Handler mHandler = new Handler(){
         public void handleMessage(android.os.Message msg){
             switch (msg.what){
                 case UPDATE_TODAY_WEATHER:
+                    //更新界面
                     updateTodayWeather((TodayWeather)msg.obj);
+                    viewPagerAdapter.setInfoList((TodayWeather)msg.obj);
+                    viewPagerAdapter.updatePageItems();
                     break;
                 default:
                     break;
@@ -98,7 +105,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
             if(NetUtil.getNetworkState(this)!=NetUtil.NETWORN_NONE){  //确定网络可访问
                 Log.d("myWeather","网络OK");
                // queryWeatherCode(cityCode);
-                fetchWeather(cityCode);
+                if(ButtonSlop.check(R.id.title_update_btn)){
+                    Toast.makeText(this, "亲爱的，您点太快了", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    fetchWeather(cityCode);
+                }
+
             }
             else{
                 Log.d("myWeather","网络连接失败");
@@ -137,17 +150,17 @@ public class MainActivity extends Activity implements View.OnClickListener{
         weatherImg = (ImageView) findViewById(R.id.weather_img);
 
 
-        LayoutInflater inflater = LayoutInflater.from(this);
 
+        LayoutInflater inflater = LayoutInflater.from(this);
         View one_page = inflater.inflate(R.layout.page1viewer,null);
         View two_page = inflater.inflate(R.layout.page2viewer,null);
         views = new ArrayList<View>();
         views.add(one_page);
         views.add(two_page);
-
         viewPagerAdapter = new ViewPagerAdapter(views,this);
         viewPager = (ViewPager)findViewById(R.id.viewpager);
         viewPager.setAdapter(viewPagerAdapter);
+
 
         String citycode;
         if(!(citycode =getSharedPreferences("config",MODE_PRIVATE).getString("main_city_code","")).equals("")){
@@ -174,42 +187,17 @@ public class MainActivity extends Activity implements View.OnClickListener{
         climateTv.setText("N/A");
         windTv.setText("N/A");
 
-
-
     }
-    private void initImage(){
-        ImgHash = new HashMap<String ,Integer>();
-        ImgHash.put("晴",R.drawable.biz_plugin_weather_qing);
-        ImgHash.put("阴",R.drawable.biz_plugin_weather_yin);
-        ImgHash.put("多云",R.drawable.biz_plugin_weather_duoyun);
-        ImgHash.put("沙尘暴",R.drawable.biz_plugin_weather_shachenbao);
-        ImgHash.put("雾",R.drawable.biz_plugin_weather_wu);
-        ImgHash.put("小雨",R.drawable.biz_plugin_weather_xiaoyu);
-        ImgHash.put("中雨",R.drawable.biz_plugin_weather_zhongyu);
-        ImgHash.put("大雨",R.drawable.biz_plugin_weather_dayu);
-        ImgHash.put("暴雨",R.drawable.biz_plugin_weather_baoyu);
-        ImgHash.put("大暴雨",R.drawable.biz_plugin_weather_tedabaoyu);
-        ImgHash.put("特大暴雨",R.drawable.biz_plugin_weather_tedabaoyu);
-        ImgHash.put("阵雨",R.drawable.biz_plugin_weather_zhenyu);
-        ImgHash.put("雷阵雨",R.drawable.biz_plugin_weather_leizhenyu);
-        ImgHash.put("雷阵雨冰雹",R.drawable.biz_plugin_weather_leizhenyubingbao);
-        ImgHash.put("雨夹雪",R.drawable.biz_plugin_weather_yujiaxue);
-        ImgHash.put("小雪",R.drawable.biz_plugin_weather_xiaoxue);
-        ImgHash.put("中雪",R.drawable.biz_plugin_weather_zhongxue);
-        ImgHash.put("阵雪",R.drawable.biz_plugin_weather_zhenxue);
-        ImgHash.put("大雪",R.drawable.biz_plugin_weather_daxue);
-        ImgHash.put("暴雪",R.drawable.biz_plugin_weather_baoxue);
 
-    }
     /**
      * 更新UI天气信息
      * @param todayWeather
      */
     private void updateTodayWeather(TodayWeather todayWeather){
-        System.out.println(todayWeather.toString());
+        //System.out.println(todayWeather.toString());
         int pm25 = Integer.parseInt(todayWeather.getPm25());
         String type = todayWeather.getType();
-        Log.d("myApp",todayWeather.getHigh()+" "+todayWeather.getLow());
+
         city_name_Tv.setText(todayWeather.getCity()+"天气");
         cityTv.setText(todayWeather.getCity());
         timeTv.setText(todayWeather.getUpdatetime()+"发布");
@@ -223,6 +211,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         windTv.setText("风力："+todayWeather.getFengli());
         //没有风向
         if(pm25<=50){
+           // pmImg.setImageResource();
             pmImg.setImageDrawable(getResources().getDrawable(R.drawable.biz_plugin_weather_0_50));
         }
         else if(pm25<=100){
@@ -241,8 +230,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
             pmImg.setImageDrawable(getResources().getDrawable(R.drawable.biz_plugin_weather_greater_300));
         }
         //更新天气图片
-        if(ImgHash.containsKey(type)){
-            weatherImg.setImageDrawable(getResources().getDrawable(ImgHash.get(type)));
+        if(MyApplication.getInstance().getImgHash().containsKey(type)){
+            weatherImg.setImageDrawable(getResources().getDrawable(MyApplication.getInstance().getImgHash().get(type)));
         }
 
         Toast.makeText(MainActivity.this, "更新成功!", Toast.LENGTH_SHORT).show();

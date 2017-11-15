@@ -12,7 +12,7 @@ import com.example.linch.miniweather.R;
  * Created by linch on 2017/11/11.
  */
 
-public class UpdateImageRotateService {
+public  class UpdateImageRotateService {
     private ImageView titleupdate;
     private Context context;
     public UpdateImageRotateService(ImageView imageView,Context context){

@@ -36,6 +36,8 @@ public class CityDB implements Callable<List<City>>{
             City item = new City(province,city,number,allPY,allFirstPY,firstPY);
             list.add(item);
         }
+        c.close();
+        db.close();
         return list;
     }
 

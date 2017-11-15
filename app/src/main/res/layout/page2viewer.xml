@@ -12,7 +12,7 @@
         android:orientation="vertical"
         >
         <TextView
-            android:id="@+id/weekday4"
+            android:id="@+id/date4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -22,13 +22,13 @@
             android:textSize="15sp"
             />
         <ImageView
-            android:id="@+id/imageday4"
+            android:id="@+id/weather_img4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/biz_plugin_weather_qing"/>
         <TextView
-            android:id="@+id/tempteratureday4"
+            android:id="@+id/temperature4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -37,7 +37,7 @@
             android:textColor="@android:color/white"
             android:textSize="15sp"/>
         <TextView
-            android:id="@+id/climateday4"
+            android:id="@+id/climate4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -46,7 +46,7 @@
             android:textColor="@android:color/white"
             android:textSize="15sp"/>
         <TextView
-            android:id="@+id/windday4"
+            android:id="@+id/wind4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -63,7 +63,7 @@
         android:orientation="vertical"
         >
         <TextView
-            android:id="@+id/weekday5"
+            android:id="@+id/date5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -73,13 +73,13 @@
             android:textSize="15sp"
             />
         <ImageView
-            android:id="@+id/imageday5"
+            android:id="@+id/weather_img5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/biz_plugin_weather_qing"/>
         <TextView
-            android:id="@+id/tempteratureday5"
+            android:id="@+id/temperature5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -88,7 +88,7 @@
             android:textColor="@android:color/white"
             android:textSize="15sp"/>
         <TextView
-            android:id="@+id/climateday5"
+            android:id="@+id/climate5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -97,7 +97,7 @@
             android:textColor="@android:color/white"
             android:textSize="15sp"/>
         <TextView
-            android:id="@+id/windday5"
+            android:id="@+id/wind5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -114,7 +114,7 @@
         android:orientation="vertical"
         >
         <TextView
-            android:id="@+id/weekday6"
+            android:id="@+id/date6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -124,13 +124,13 @@
             android:textSize="15sp"
             />
         <ImageView
-            android:id="@+id/imageday6"
+            android:id="@+id/weather_img6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/biz_plugin_weather_qing"/>
         <TextView
-            android:id="@+id/tempteratureday6"
+            android:id="@+id/temperature6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -139,7 +139,7 @@
             android:textColor="@android:color/white"
             android:textSize="15sp"/>
         <TextView
-            android:id="@+id/climateday6"
+            android:id="@+id/climate6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -148,7 +148,7 @@
             android:textColor="@android:color/white"
             android:textSize="15sp"/>
         <TextView
-            android:id="@+id/windday6"
+            android:id="@+id/wind6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
