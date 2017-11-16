@@ -42,7 +42,7 @@ public class ViewPagerAdapter extends PagerAdapter {
             R.id.weather_img1, R.id.weather_img2, R.id.weather_img3,
             R.id.weather_img4, R.id.weather_img5, R.id.weather_img6};
 
-    private boolean positionValue[] = {false, false};
+    private boolean positionValue[] = {false, false}; //控制pageView更新频率
     public ViewPagerAdapter(List<View> views, Context context){
         this.views = views;
         this.context = context;
@@ -82,7 +82,11 @@ public class ViewPagerAdapter extends PagerAdapter {
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
          this.position = position;
-         updatePageItems(views.get(position),position);
+         if(positionValue[position] == false){
+             updatePageItems(views.get(position),position);
+             positionValue[position] = true; //只更新一次，避免频繁更新
+         }
+
     }
 
     @Override
@@ -106,9 +110,17 @@ public class ViewPagerAdapter extends PagerAdapter {
         }
     }
     public void updatePageItems(){
-        updatePageItems(views.get(position),position);
+        updatePageItems(views.get(0),0);
+        updatePageItems(views.get(1),1);
     }
-    public void updatePageItems(View view, int position){
+
+    /**
+     * pageVIew更新主模块
+     * 同步机制防止出现错乱
+     * @param view
+     * @param position
+     */
+    private  synchronized void updatePageItems(View view, int position){
         System.out.println("position"+position);
         if(weatherInfoList==null){
             return;
@@ -129,6 +141,8 @@ public class ViewPagerAdapter extends PagerAdapter {
         for(int i=0; i<3; i++){
             int index = offset + i*4 + 2;
             String type = weatherInfoList.get(index); //获取气候信息
+            if("N/A".equals(type))
+                continue;
             imageview = (ImageView)view.findViewById(pageImageIdList[position*3 +i]);
             System.out.println("***"+type+"***");
             imageview.setImageDrawable(view.getResources().getDrawable(ImgHash.get(type)));
@@ -144,15 +158,18 @@ public class ViewPagerAdapter extends PagerAdapter {
         if (todayWeather == null) {
             return;
         }
+        positionValue[0] = false; //设置为需要更新
+        positionValue[1] = false; //设置为需要更新
+
         weatherInfoList = new ArrayList<String>();
         //  weatherInfoList.add(todayWeather.getFengxiang0());
         //昨天
-        weatherInfoList.add(todayWeather.getDate0());
+        weatherInfoList.add(todayWeather.getDate0().replaceFirst("星期[一二三四五六日]","")+"昨天");
         weatherInfoList.add(todayWeather.getHigh0() + "~" + todayWeather.getLow0());
         weatherInfoList.add(todayWeather.getType0());
         weatherInfoList.add(todayWeather.getFengxiang0());
         //今天
-        weatherInfoList.add(todayWeather.getDate());
+        weatherInfoList.add(todayWeather.getDate().replaceFirst("星期[一二三四五六日]","")+"今天");
         weatherInfoList.add(todayWeather.getHigh() + "~" + todayWeather.getLow());
         weatherInfoList.add(todayWeather.getType());
         weatherInfoList.add(todayWeather.getFengxiang());

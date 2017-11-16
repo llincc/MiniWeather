@@ -20,11 +20,10 @@ import com.example.linch.controller.ThreadPoolController;
 import com.example.linch.miniweather.R;
 import com.example.linch.service.FetchTodayWeatherService;
 import com.example.linch.service.UpdateImageRotateService;
-import com.example.linch.util.ButtonSlop;
+import com.example.linch.util.ButtonSlopUtil;
 import com.example.linch.util.NetUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -43,9 +42,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
                        climateTv, windTv, city_name_Tv, currenttemp;
     //viewAdapter
 
-    private TextView  date1, climate1, temperature1, wind1, date2, climate2, temperature2, wind2,
-                       date3, climate3, temperature3, wind3, date4, climate4, temperature4, wind4;
-    private ImageView weather_img1, weather_img2, weather_img3, weather_img4;
     private ViewPagerAdapter viewPagerAdapter;
     private ViewPager viewPager;
     private List<View> views;
@@ -62,11 +58,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
         //网咯测试
         if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE){
             Log.d("myWeather","网络OK");
-            Toast.makeText(MainActivity.this,"网络OK！",Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this,"网络OK！",Toast.LENGTH_SHORT).show();
         }
         else{
             Log.d("myWeather","网络连接失败");
-          Toast.makeText(MainActivity.this,"网络连接失败！",Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this,"网络连接失败！",Toast.LENGTH_SHORT).show();
         }
 
         initAllViews();
@@ -79,8 +75,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
             switch (msg.what){
                 case UPDATE_TODAY_WEATHER:
                     //更新界面
-                    updateTodayWeather((TodayWeather)msg.obj);
-                    viewPagerAdapter.setInfoList((TodayWeather)msg.obj);
+                    TodayWeather todayWeather = (TodayWeather)msg.obj;
+                    if(todayWeather.getCity().equals("N/A")){
+                        Toast.makeText(MainActivity.this,"抱歉，该城市天气信息不存在",Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    updateTodayWeather(todayWeather);
+                    viewPagerAdapter.setInfoList(todayWeather);
                     viewPagerAdapter.updatePageItems();
                     break;
                 default:
@@ -105,7 +106,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             if(NetUtil.getNetworkState(this)!=NetUtil.NETWORN_NONE){  //确定网络可访问
                 Log.d("myWeather","网络OK");
                // queryWeatherCode(cityCode);
-                if(ButtonSlop.check(R.id.title_update_btn)){
+                if(ButtonSlopUtil.check(R.id.title_update_btn)){
                     Toast.makeText(this, "亲爱的，您点太快了", Toast.LENGTH_SHORT).show();
                 }
                 else{
@@ -115,7 +116,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             }
             else{
                 Log.d("myWeather","网络连接失败");
-                Toast.makeText(MainActivity.this,"网络连接失败！",Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this,"网络连接失败！",Toast.LENGTH_SHORT).show();
             }
         }
     }

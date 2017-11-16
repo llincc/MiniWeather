@@ -11,7 +11,7 @@ import java.util.Map;
  * final类禁止被继承
  * 限制按钮点击频率空间
  */
-public final class ButtonSlop {
+public final class ButtonSlopUtil {
     //记录所有按钮最后点击的时间
     private final static Map<String,Long> SLOPS_MAP = new HashMap<String ,Long>();
     private static int MIN_SLOP = 500;
