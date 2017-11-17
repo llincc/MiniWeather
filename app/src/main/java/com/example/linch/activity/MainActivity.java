@@ -19,7 +19,7 @@ import com.example.linch.bean.TodayWeather;
 import com.example.linch.controller.ThreadPoolController;
 import com.example.linch.miniweather.R;
 import com.example.linch.service.FetchTodayWeatherService;
-import com.example.linch.service.UpdateImageRotateService;
+import com.example.linch.util.UpdateImageRotateUtil;
 import com.example.linch.util.ButtonSlopUtil;
 import com.example.linch.util.NetUtil;
 
@@ -253,10 +253,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
      * @param cityCode
      */
     private void fetchWeather(String cityCode){
-        UpdateImageRotateService updateImageRotateService = new UpdateImageRotateService(this.mUpdateBtn,this);
-        updateImageRotateService.startRotate();
+        UpdateImageRotateUtil updateImageRotateUtil = new UpdateImageRotateUtil(this.mUpdateBtn,this);
+        updateImageRotateUtil.startRotate();
         queryWeatherCode(cityCode);
-        //updateImageRotateService.stopRotate();
+        //updateImageRotateUtil.stopRotate();
     }
     public Handler getmHandler(){
         return mHandler;

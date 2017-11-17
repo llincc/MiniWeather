@@ -1,4 +1,4 @@
-package com.example.linch.service;
+package com.example.linch.util;
 
 import android.content.Context;
 import android.view.animation.Animation;
@@ -12,10 +12,10 @@ import com.example.linch.miniweather.R;
  * Created by linch on 2017/11/11.
  */
 
-public  class UpdateImageRotateService {
+public  class UpdateImageRotateUtil {
     private ImageView titleupdate;
     private Context context;
-    public UpdateImageRotateService(ImageView imageView,Context context){
+    public UpdateImageRotateUtil(ImageView imageView, Context context){
         this.titleupdate = imageView;
         this.context = context;
     }
