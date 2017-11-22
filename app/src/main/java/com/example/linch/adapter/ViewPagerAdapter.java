@@ -98,7 +98,7 @@ public class ViewPagerAdapter extends PagerAdapter {
     public boolean isViewFromObject(View view, Object object) {
         return (view == object);
     }
-
+    //初始化界面
     private void initPageItems(View view,int position){
         TextView textview;
         int offset = position * 12;

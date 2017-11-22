@@ -1,5 +1,6 @@
 package com.example.linch.service;
 
+import com.example.linch.app.MyApplication;
 import com.example.linch.bean.City;
 
 import java.util.LinkedList;
@@ -22,6 +23,8 @@ public class CitySearchService implements Callable<List<String>>{
     }
     //搜索
     private List<String> getCityList(String preChar, List<City> mCityList){
+        if("".equals(preChar)) //输入为空，则直接返回所有城市列表
+            return MyApplication.getInstance().getCityList();
         //System.out.println(TAG+Thread.currentThread().getName());
         List<String> SearchResult =new LinkedList<String>();
         for(City city: mCityList){
@@ -30,7 +33,7 @@ public class CitySearchService implements Callable<List<String>>{
                 continue;
             }
             else{
-                preChar = preChar.toUpperCase();
+                preChar = preChar.toUpperCase(); //转为大写
             }
             if(city.getAllfirstPY().startsWith(preChar)){
                 SearchResult.add(city.getCity()+" "+city.getProvince());

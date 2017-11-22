@@ -19,7 +19,7 @@ import com.example.linch.bean.TodayWeather;
 import com.example.linch.controller.ThreadPoolController;
 import com.example.linch.miniweather.R;
 import com.example.linch.service.FetchTodayWeatherService;
-import com.example.linch.util.UpdateImageRotateUtil;
+import com.example.linch.util.ImageRotateUtil;
 import com.example.linch.util.ButtonSlopUtil;
 import com.example.linch.util.NetUtil;
 
@@ -106,8 +106,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
             if(NetUtil.getNetworkState(this)!=NetUtil.NETWORN_NONE){  //确定网络可访问
                 Log.d("myWeather","网络OK");
                // queryWeatherCode(cityCode);
-                if(ButtonSlopUtil.check(R.id.title_update_btn)){
-                    Toast.makeText(this, "亲爱的，您点太快了", Toast.LENGTH_SHORT).show();
+                if(ButtonSlopUtil.check(R.id.title_update_btn, 1000)){ //设置点击间隔，防止按钮被频繁点击
+                    //Toast.makeText(this, "亲爱的，您点太快了", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     fetchWeather(cityCode);
@@ -253,10 +253,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
      * @param cityCode
      */
     private void fetchWeather(String cityCode){
-        UpdateImageRotateUtil updateImageRotateUtil = new UpdateImageRotateUtil(this.mUpdateBtn,this);
-        updateImageRotateUtil.startRotate();
+        ImageRotateUtil updateImageRotate = new ImageRotateUtil(this.mUpdateBtn,this);
+        updateImageRotate.startRotate();
         queryWeatherCode(cityCode);
-        //updateImageRotateUtil.stopRotate();
+        //updateImageRotate.stopRotate();
     }
     public Handler getmHandler(){
         return mHandler;
