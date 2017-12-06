@@ -22,6 +22,7 @@ public class CityDB implements Callable<List<City>>{
     public CityDB(Context context, String path){
         db = context.openOrCreateDatabase(path,Context.MODE_PRIVATE,null);
     }
+    //城市搜索
 
     public List<City> getAllCity() {
         List<City> list = new ArrayList<City>();

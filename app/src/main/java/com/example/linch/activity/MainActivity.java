@@ -1,10 +1,14 @@
 package com.example.linch.activity;
 
 import android.app.Activity;
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +22,7 @@ import com.example.linch.app.MyApplication;
 import com.example.linch.bean.TodayWeather;
 import com.example.linch.controller.ThreadPoolController;
 import com.example.linch.miniweather.R;
+import com.example.linch.service.AutoUpdateService;
 import com.example.linch.service.FetchTodayWeatherService;
 import com.example.linch.util.ImageRotateUtil;
 import com.example.linch.util.ButtonSlopUtil;
@@ -32,7 +37,9 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 
 public class MainActivity extends Activity implements View.OnClickListener{
-    public static final  int UPDATE_TODAY_WEATHER = 1;
+    public static final  int UPDATE_TODAY_WEATHER = 1;  //更新天气标志
+
+    public static final String TAG = "MainActivity";
 
     private ImageView mUpdateBtn;
     private ImageView mCityBtn;
@@ -45,7 +52,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private ViewPagerAdapter viewPagerAdapter;
     private ViewPager viewPager;
     private List<View> views;
+    private List<ImageView> idotList;
 
+    private ServiceConnection connection;
+    private AutoUpdateService autoUpdateService;
     @Override
     protected void onCreate(Bundle savedInstanceState ){
         super.onCreate(savedInstanceState);
@@ -57,15 +67,16 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mCityBtn.setOnClickListener(this);
         //网咯测试
         if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE){
-            Log.d("myWeather","网络OK");
+            Log.d(TAG,"网络OK");
             Toast.makeText(MainActivity.this,"网络OK！",Toast.LENGTH_SHORT).show();
         }
         else{
-            Log.d("myWeather","网络连接失败");
+            Log.d(TAG,"网络连接失败");
             Toast.makeText(MainActivity.this,"网络连接失败！",Toast.LENGTH_SHORT).show();
         }
 
         initAllViews();
+        initService();  //初始化服务
     }
     /**
      * Handler负责接收子线程发送的消息并更新UI
@@ -101,10 +112,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
             //通过SharedPreferences读取城市id，如果没有定义则缺省为101010100（北京城市）
             SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
             String cityCode = sharedPreferences.getString("main_city_code","101010100");
-            Log.d("myWeather",cityCode);
+            Log.d(TAG,cityCode);
 
             if(NetUtil.getNetworkState(this)!=NetUtil.NETWORN_NONE){  //确定网络可访问
-                Log.d("myWeather","网络OK");
+                Log.d(TAG,"网络OK");
                // queryWeatherCode(cityCode);
                 if(ButtonSlopUtil.check(R.id.title_update_btn, 1000)){ //设置点击间隔，防止按钮被频繁点击
                     //Toast.makeText(this, "亲爱的，您点太快了", Toast.LENGTH_SHORT).show();
@@ -115,7 +126,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
             }
             else{
-                Log.d("myWeather","网络连接失败");
+                Log.d(TAG,"网络连接失败");
                 Toast.makeText(MainActivity.this,"网络连接失败！",Toast.LENGTH_SHORT).show();
             }
         }
@@ -125,12 +136,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
         if(requestCode == 1 && resultCode == RESULT_OK){ //接收城市代码
             String newCityCode = data.getStringExtra("cityCode");
             if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE){ //网络测试
-                Log.d("myWeather","网络OK");
+                Log.d(TAG,"网络OK");
                 //if(city)
                 queryWeatherCode(newCityCode);
             }
             else{
-                Log.d("myWeather","网络连接失败");
+                Log.d(TAG,"网络连接失败");
 
             }
         }
@@ -162,6 +173,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         viewPager = (ViewPager)findViewById(R.id.viewpager);
         viewPager.setAdapter(viewPagerAdapter);
 
+        idotList = new ArrayList<ImageView>();
+        idotList.add((ImageView) findViewById(R.id.idotimg1));
+        idotList.add((ImageView) findViewById(R.id.idotimg2));
 
         String citycode;
         if(!(citycode =getSharedPreferences("config",MODE_PRIVATE).getString("main_city_code","")).equals("")){
@@ -170,6 +184,29 @@ public class MainActivity extends Activity implements View.OnClickListener{
         else{
             initView();
         }
+    }
+    private void initService(){
+        connection = new ServiceConnection() {
+            /**
+             * 与服务器端交互的接口方法 绑定服务的时候被回调，在这个方法获取绑定Service传递过来的IBinder对象，
+             * 通过这个IBinder对象，实现宿主和Service的交互。
+             */
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                Log.d(TAG,"绑定自动更新服务");
+                //获取绑定的Service实例
+                AutoUpdateService.LocalBinder binder = (AutoUpdateService.LocalBinder)service;
+                autoUpdateService = binder.getSerVice();
+                autoUpdateService.setContext(MainActivity.this);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                autoUpdateService = null;
+            }
+        };
+        Intent intent = new Intent(MainActivity.this, AutoUpdateService.class);
+        bindService(intent, connection, Service.BIND_AUTO_CREATE);  //绑定
     }
     /**
      * 初始化天气信息
@@ -245,7 +282,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
         String address = String.format("%s%s","http://wthrcdn.etouch.cn/WeatherApi?citykey=",cityCode);
         ThreadPoolExecutor executor = ThreadPoolController.getInstance().getExecutor();
         executor.submit(new FetchTodayWeatherService(address,this));
-
     }
 
     /**
@@ -258,9 +294,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
         queryWeatherCode(cityCode);
         //updateImageRotate.stopRotate();
     }
+
     public Handler getmHandler(){
         return mHandler;
     }
+    public List<ImageView> getIdotList(){return idotList;}
 
 
 }

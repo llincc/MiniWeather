@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * final类禁止被继承
- * 限制按钮点击频率空间
+ * 限制按钮点击频率
  */
 public final class ButtonSlopUtil {
     //记录所有按钮最后点击的时间

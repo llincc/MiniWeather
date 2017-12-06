@@ -32,7 +32,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class SelectCityActivity extends Activity implements View.OnClickListener,AdapterView.OnItemClickListener,TextWatcher{
     private ImageView mBackBtn;
-    private MyApplication mApplication;
     private ListView cityListView;
     private List<String> cityList;
     private EditText searchbox;

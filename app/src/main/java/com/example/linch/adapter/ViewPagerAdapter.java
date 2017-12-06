@@ -1,20 +1,15 @@
 package com.example.linch.adapter;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.app.Activity;
 
+import com.example.linch.activity.MainActivity;
 import com.example.linch.app.MyApplication;
 import com.example.linch.bean.TodayWeather;
 import com.example.linch.miniweather.R;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,8 +22,9 @@ import java.util.List;
 public class ViewPagerAdapter extends PagerAdapter {
     private List<View> views;
     private int position;
-    private Context context;
+    private MainActivity context;
     private List<String> weatherInfoList;
+    private List<ImageView> idotList;
     //TextView id列表
     private final int pageViewIdList[] = {
             R.id.date1, R.id.climate1,R.id.temperature1 , R.id.wind1,
@@ -43,7 +39,7 @@ public class ViewPagerAdapter extends PagerAdapter {
             R.id.weather_img4, R.id.weather_img5, R.id.weather_img6};
 
     private boolean positionValue[] = {false, false}; //控制pageView更新频率
-    public ViewPagerAdapter(List<View> views, Context context){
+    public ViewPagerAdapter(List<View> views,MainActivity context){
         this.views = views;
         this.context = context;
         this.position = 0;
@@ -82,6 +78,7 @@ public class ViewPagerAdapter extends PagerAdapter {
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
          this.position = position;
+         setIdotimage(position);
          if(positionValue[position] == false){
              updatePageItems(views.get(position),position);
              positionValue[position] = true; //只更新一次，避免频繁更新
@@ -194,5 +191,20 @@ public class ViewPagerAdapter extends PagerAdapter {
         weatherInfoList.add(todayWeather.getType4());
         weatherInfoList.add(todayWeather.getFengxiang4());
 
+    }
+    private void setIdotimage(int position){
+        if(context==null){
+            return;
+        }
+        this.idotList = context.getIdotList();
+        ImageView idotimage;
+        for(int i=0; i<idotList.size(); i++) {
+            idotimage = idotList.get(i);
+            if (i == position) {
+                idotimage.setImageDrawable(context.getResources().getDrawable(R.drawable.idot_focused));
+            } else {
+                idotimage.setImageDrawable(context.getResources().getDrawable(R.drawable.idot_unfocused));
+            }
+        }
     }
 }

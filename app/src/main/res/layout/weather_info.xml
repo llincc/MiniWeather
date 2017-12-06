@@ -263,7 +263,22 @@
                  android:id="@+id/viewpager">
 
              </android.support.v4.view.ViewPager>
-
+             <LinearLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_alignBottom="@id/viewpager"
+                 android:gravity="center">
+                 <ImageView
+                     android:id="@+id/idotimg1"
+                     android:layout_width="15dp"
+                     android:layout_height="15dp"
+                     android:src="@drawable/idot_focused" />
+                 <ImageView
+                     android:id="@+id/idotimg2"
+                     android:layout_width="15dp"
+                     android:layout_height="15dp"
+                     android:src="@drawable/idot_unfocused"/>
+             </LinearLayout>
 
          </RelativeLayout>
 
