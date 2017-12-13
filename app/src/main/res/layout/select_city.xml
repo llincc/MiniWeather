@@ -60,7 +60,7 @@
         android:background="@drawable/edittext_selector"
         android:drawablePadding="8dp"
         />
-    
+
     <ListView
         android:id="@+id/city_list"
         android:layout_width="match_parent"

@@ -13,6 +13,10 @@ public class NetUtil {
     public static final int NETWORN_WIFI = 1;
     public static final int NETWORN_MOBILE = 2;
 
+    public static boolean isConnectNet(Context context){
+        return getNetworkState(context) != NETWORN_NONE;
+    }
+
     public static int getNetworkState(Context context){
         ConnectivityManager connManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -31,4 +35,5 @@ public class NetUtil {
         }
         return NETWORN_NONE;
     }
+
 }

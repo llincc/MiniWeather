@@ -1,14 +1,20 @@
 package com.example.linch.activity;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,12 +23,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
 import com.example.linch.adapter.ViewPagerAdapter;
 import com.example.linch.app.MyApplication;
 import com.example.linch.bean.TodayWeather;
 import com.example.linch.controller.ThreadPoolController;
 import com.example.linch.miniweather.R;
 import com.example.linch.service.AutoUpdateService;
+import com.example.linch.service.BaiDuLocationService;
 import com.example.linch.service.FetchTodayWeatherService;
 import com.example.linch.util.ImageRotateUtil;
 import com.example.linch.util.ButtonSlopUtil;
@@ -38,10 +47,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class MainActivity extends Activity implements View.OnClickListener{
     public static final  int UPDATE_TODAY_WEATHER = 1;  //更新天气标志
+    public static final  int LOCATION_SERVICE = 2;
+
+    private static final int SDK_PERMISSION_REQUEST = 100;
 
     public static final String TAG = "MainActivity";
 
     private ImageView mUpdateBtn;
+    private ImageView mLocationBtn;
     private ImageView mCityBtn;
     private ImageView weatherImg, pmImg;
 
@@ -50,23 +63,33 @@ public class MainActivity extends Activity implements View.OnClickListener{
     //viewAdapter
 
     private ViewPagerAdapter viewPagerAdapter;
+
     private ViewPager viewPager;
     private List<View> views;
     private List<ImageView> idotList;
 
     private ServiceConnection connection;
     private AutoUpdateService autoUpdateService;
+
+    private LocationClient locationClient;
+    private BaiDuLocationService baiDuLocationService;
     @Override
     protected void onCreate(Bundle savedInstanceState ){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
         //System.out.println(Thread.currentThread().getName());
-        mUpdateBtn = (ImageView)findViewById(R.id.title_update_btn); //title_update_btn按钮
+        mUpdateBtn = (ImageView)findViewById(R.id.title_update_btn);   //title_update_btn按钮
         mCityBtn =   (ImageView)findViewById(R.id.title_city_manager); //title_city_manager按钮
+        mLocationBtn = (ImageView)findViewById(R.id.title_location);   //title_location按钮
         mUpdateBtn.setOnClickListener(this);
         mCityBtn.setOnClickListener(this);
+        mLocationBtn.setOnClickListener(this);
+
+        locationClient = new LocationClient(this);                      //声明LocationClient类
+        baiDuLocationService = new BaiDuLocationService(this);         //注册监听函数
+        locationClient.registerLocationListener(baiDuLocationService);
         //网咯测试
-        if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE){
+        if(NetUtil.isConnectNet(this)){
             Log.d(TAG,"网络OK");
             Toast.makeText(MainActivity.this,"网络OK！",Toast.LENGTH_SHORT).show();
         }
@@ -77,6 +100,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         initAllViews();
         initService();  //初始化服务
+        initLocation();
+
+       // permissionCheck(); //权限检查与申请
+        locationClient.start(); //初始化时定位一次
     }
     /**
      * Handler负责接收子线程发送的消息并更新UI
@@ -95,6 +122,17 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     viewPagerAdapter.setInfoList(todayWeather);
                     viewPagerAdapter.updatePageItems();
                     break;
+                case LOCATION_SERVICE:
+                    String citycode = (String)msg.obj;
+                    Log.d(TAG, citycode);
+                    if("".equals(citycode)){
+                        Toast.makeText(MainActivity.this,"定位失败，请检查网络设置",Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        queryWeatherCode(citycode);
+                    }
+                    locationClient.stop();
+                    break;
                 default:
                     break;
             }
@@ -102,47 +140,52 @@ public class MainActivity extends Activity implements View.OnClickListener{
     };
     @Override
     public void onClick(View view){
-        if(view.getId() == R.id.title_city_manager){
-            Intent intent = new Intent(this,SelectCityActivity.class);
-            //传递当前城市信息
-            intent.putExtra("currentCity",cityTv.getText());
-            startActivityForResult(intent,1);
-        }
-        if(view.getId() == R.id.title_update_btn){
-            //通过SharedPreferences读取城市id，如果没有定义则缺省为101010100（北京城市）
-            SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
-            String cityCode = sharedPreferences.getString("main_city_code","101010100");
-            Log.d(TAG,cityCode);
+        switch (view.getId()){
+            case R.id.title_city_manager:
+                Intent intent = new Intent(this,SelectCityActivity.class);
+                //传递当前城市信息
+                intent.putExtra("currentCity",cityTv.getText());
+                startActivityForResult(intent,1);
+                break;
+            case R.id.title_update_btn:
+                //通过SharedPreferences读取城市id，如果没有定义则缺省为101010100（北京城市）
+                SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
+                String cityCode = sharedPreferences.getString("main_city_code","101010100");
+                Log.d(TAG,cityCode);
 
-            if(NetUtil.getNetworkState(this)!=NetUtil.NETWORN_NONE){  //确定网络可访问
-                Log.d(TAG,"网络OK");
-               // queryWeatherCode(cityCode);
-                if(ButtonSlopUtil.check(R.id.title_update_btn, 1000)){ //设置点击间隔，防止按钮被频繁点击
-                    //Toast.makeText(this, "亲爱的，您点太快了", Toast.LENGTH_SHORT).show();
+                if(NetUtil.isConnectNet(this)){  //确定网络可访问
+                    Log.d(TAG,"网络OK");
+                    // queryWeatherCode(cityCode);
+                    if(ButtonSlopUtil.check(R.id.title_update_btn, 1000)){ //设置点击间隔，防止按钮被频繁点击
+                        //Toast.makeText(this, "亲爱的，您点太快了", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        fetchWeather(cityCode);
+                    }
                 }
                 else{
-                    fetchWeather(cityCode);
+                    Log.d(TAG,"网络连接失败");
+                    Toast.makeText(MainActivity.this,"网络连接失败！",Toast.LENGTH_SHORT).show();
                 }
-
-            }
-            else{
-                Log.d(TAG,"网络连接失败");
-                Toast.makeText(MainActivity.this,"网络连接失败！",Toast.LENGTH_SHORT).show();
-            }
+                break;
+            case R.id.title_location:
+                locationClient.start();
+                break;
+            default:
+                break;
         }
     }
     //接收Intent
     protected  void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == 1 && resultCode == RESULT_OK){ //接收城市代码
             String newCityCode = data.getStringExtra("cityCode");
-            if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE){ //网络测试
+            if(NetUtil.isConnectNet(this)){ //网络测试
                 Log.d(TAG,"网络OK");
                 //if(city)
                 queryWeatherCode(newCityCode);
             }
             else{
                 Log.d(TAG,"网络连接失败");
-
             }
         }
     }
@@ -173,9 +216,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
         viewPager = (ViewPager)findViewById(R.id.viewpager);
         viewPager.setAdapter(viewPagerAdapter);
 
-        idotList = new ArrayList<ImageView>();
-        idotList.add((ImageView) findViewById(R.id.idotimg1));
-        idotList.add((ImageView) findViewById(R.id.idotimg2));
+        TabLayout tabLayout = (TabLayout)findViewById(R.id.tabDots);
+        tabLayout.setupWithViewPager(viewPager, true);
 
         String citycode;
         if(!(citycode =getSharedPreferences("config",MODE_PRIVATE).getString("main_city_code","")).equals("")){
@@ -185,7 +227,21 @@ public class MainActivity extends Activity implements View.OnClickListener{
             initView();
         }
     }
+    private void initLocation(){
+        LocationClientOption option = new LocationClientOption();
+        option.setOpenGps(true);
+        option.setIsNeedAddress(true); //是否获取地址信息
+        option.setCoorType("bd09ll"); //百度经纬度坐标系
+        option.setLocationMode(LocationClientOption.LocationMode.Battery_Saving); //定位模式
+        option.setScanSpan(5000);  //设置检查周期
+        locationClient.setLocOption(option);
+    }
+
+    /**
+     * 初始化服务
+     */
     private void initService(){
+        //初始化链接
         connection = new ServiceConnection() {
             /**
              * 与服务器端交互的接口方法 绑定服务的时候被回调，在这个方法获取绑定Service传递过来的IBinder对象，
@@ -206,7 +262,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             }
         };
         Intent intent = new Intent(MainActivity.this, AutoUpdateService.class);
-        bindService(intent, connection, Service.BIND_AUTO_CREATE);  //绑定
+        bindService(intent, connection, Service.BIND_AUTO_CREATE);  //绑定服务
     }
     /**
      * 初始化天气信息
@@ -298,7 +354,71 @@ public class MainActivity extends Activity implements View.OnClickListener{
     public Handler getmHandler(){
         return mHandler;
     }
-    public List<ImageView> getIdotList(){return idotList;}
+//
+//    private void locationStart(){
+//        if(NetUtil.isConnectNet(this)){
+//            locationClient.start();
+//        }
+//        else{
+//
+//        }
+//    }
+
+    /**
+     * 定位相关权限检查
+     */
+    @TargetApi(23)
+    private void permissionCheck(){
+        String permissionInfo = "";
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.M){ //安卓6.0 SDK23才会有这个问题
+            ArrayList<String> permissions = new ArrayList<String>();
+            /***
+             * 定位权限为必须权限，用户如果禁止，则每次进入都会申请
+             */
+            // 定位精确位置
+            if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+            if(checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            }
+            /*
+             * 读写权限和电话状态权限非必要权限(建议授予)只会申请一次，用户同意或者禁止，只会弹一次
+             */
+            // 读写权限
+            if (addPermission(permissions, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                permissionInfo += "Manifest.permission.WRITE_EXTERNAL_STORAGE Deny \n";
+            }
+            // 读取电话状态权限
+            if (addPermission(permissions, Manifest.permission.READ_PHONE_STATE)) {
+                permissionInfo += "Manifest.permission.READ_PHONE_STATE Deny \n";
+            }
+
+            if (permissions.size() > 0) {
+                requestPermissions(permissions.toArray(new String[permissions.size()]), SDK_PERMISSION_REQUEST);
+            }
+        }
+    }
+    @TargetApi(23)
+    private boolean addPermission(ArrayList<String> permissionsList, String permission) {
+        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) { // 如果应用没有获得对应权限,则添加到列表中,准备批量申请
+            if (shouldShowRequestPermissionRationale(permission)){
+                return true;
+            }else{
+                permissionsList.add(permission);
+                return false;
+            }
+        }else{
+            return true;
+        }
+    }
+    @TargetApi(23)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        // TODO Auto-generated method stub
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+    }
 
 
 }

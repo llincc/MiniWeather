@@ -2,12 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/page41">
+    android:background="@drawable/guide_page4">
     <ImageView
         android:id="@+id/guidebutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/page42_button"
+        android:src="@drawable/guide_button"
         android:layout_centerInParent="true"
         />
 

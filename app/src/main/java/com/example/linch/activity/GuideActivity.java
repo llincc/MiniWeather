@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,6 +83,9 @@ public class GuideActivity extends Activity implements View.OnClickListener{
         guidePagerAdapter = new GuidePageAdapter(guideViews, this);
         guideViewPager = (ViewPager) findViewById(R.id.guideViewPager);
         guideViewPager.setAdapter(guidePagerAdapter);
+
+        TabLayout tabLayout = (TabLayout)findViewById(R.id.guide_tabDots);
+        tabLayout.setupWithViewPager(guideViewPager, true);
 
     }
 

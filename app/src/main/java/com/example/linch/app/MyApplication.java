@@ -64,13 +64,11 @@ public class MyApplication extends Application {
         }
     }
     private boolean prepareCityList(){
-        int i = 0;
         //从mCityList复制城市名和省份到cityList
         for(City city : mCityList){
-            i++;
             cityList.add(city.getCity()+" "+city.getProvince());
         }
-        Log.d(TAG,"i="+i);
+        Log.d(TAG,"城市数量： "+ cityList.size());
         return true;
     }
     public List<City> getmCityList(){

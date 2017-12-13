@@ -1,6 +1,7 @@
 package com.example.linch.adapter;
 
 import android.support.v4.view.PagerAdapter;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -20,6 +21,7 @@ import java.util.List;
  */
 
 public class ViewPagerAdapter extends PagerAdapter {
+    private static final  String TAG = "ViewPager";
     private List<View> views;
     private int position;
     private MainActivity context;
@@ -78,7 +80,7 @@ public class ViewPagerAdapter extends PagerAdapter {
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
          this.position = position;
-         setIdotimage(position);
+//         setIdotimage(position);
          if(positionValue[position] == false){
              updatePageItems(views.get(position),position);
              positionValue[position] = true; //只更新一次，避免频繁更新
@@ -118,7 +120,7 @@ public class ViewPagerAdapter extends PagerAdapter {
      * @param position
      */
     private  synchronized void updatePageItems(View view, int position){
-        System.out.println("position"+position);
+        Log.d(TAG,"position"+position);
         if(weatherInfoList==null){
             return;
         }
@@ -141,7 +143,7 @@ public class ViewPagerAdapter extends PagerAdapter {
             if("N/A".equals(type))
                 continue;
             imageview = (ImageView)view.findViewById(pageImageIdList[position*3 +i]);
-            System.out.println("***"+type+"***");
+            Log.d(TAG,"***"+type+"***");
             imageview.setImageDrawable(view.getResources().getDrawable(ImgHash.get(type)));
             //imageview.setImageResource(ImgHash.get(type));
         }
@@ -192,19 +194,17 @@ public class ViewPagerAdapter extends PagerAdapter {
         weatherInfoList.add(todayWeather.getFengxiang4());
 
     }
-    private void setIdotimage(int position){
-        if(context==null){
-            return;
-        }
-        this.idotList = context.getIdotList();
-        ImageView idotimage;
-        for(int i=0; i<idotList.size(); i++) {
-            idotimage = idotList.get(i);
-            if (i == position) {
-                idotimage.setImageDrawable(context.getResources().getDrawable(R.drawable.idot_focused));
-            } else {
-                idotimage.setImageDrawable(context.getResources().getDrawable(R.drawable.idot_unfocused));
-            }
-        }
-    }
+//    private void setIdotimage(int position){
+//        if(context==null){
+//            return;
+//        }
+//        this.idotList = context.getIdotList();
+//        for(int i=0; i<idotList.size(); i++) {
+//            if (i == position) {
+//                idotList.get(i).setImageDrawable(context.getResources().getDrawable(R.drawable.idot_focused));
+//            } else {
+//                idotList.get(i).setImageDrawable(context.getResources().getDrawable(R.drawable.idot_unfocused));
+//            }
+//        }
+//    }
 }
