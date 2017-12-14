@@ -187,7 +187,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@id/currenttemp"
-                android:layout_centerInParent="true"
                 android:layout_marginTop="5.0dip"
                 >
 
@@ -264,22 +263,6 @@
                  android:id="@+id/viewpager">
 
              </android.support.v4.view.ViewPager>
-             <!--<LinearLayout-->
-                 <!--android:layout_width="match_parent"-->
-                 <!--android:layout_height="wrap_content"-->
-                 <!--android:layout_alignBottom="@id/viewpager"-->
-                 <!--android:gravity="center">-->
-                 <!--<ImageView-->
-                     <!--android:id="@+id/idotimg1"-->
-                     <!--android:layout_width="15dp"-->
-                     <!--android:layout_height="15dp"-->
-                     <!--android:src="@drawable/idot_focused" />-->
-                 <!--<ImageView-->
-                     <!--android:id="@+id/idotimg2"-->
-                     <!--android:layout_width="15dp"-->
-                     <!--android:layout_height="15dp"-->
-                     <!--android:src="@drawable/idot_unfocused"/>-->
-             <!--</LinearLayout>-->
              <android.support.design.widget.TabLayout
                  android:id="@+id/tabDots"
                  android:layout_alignParentBottom="true"

@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.example.linch.activity.MainActivity;
@@ -14,7 +16,7 @@ import com.example.linch.app.MyApplication;
  * Created by linch on 2017/12/12.
  */
 
-public class BaiDuLocationService implements BDLocationListener {
+public class BaiDuLocationService extends BDAbstractLocationListener {
     private static final String TAG = "BaiDuLocation";
     private MainActivity context;
     public BaiDuLocationService(MainActivity context){
@@ -27,6 +29,8 @@ public class BaiDuLocationService implements BDLocationListener {
             sendMassage("");
             return;
         }
+        Log.d(TAG, String.valueOf(bdLocation.getLongitude()));
+        Log.d(TAG, String.valueOf(bdLocation.getLatitude()));
         Log.d(TAG,String.valueOf(bdLocation.getLocType()));
         if(bdLocation.getAddrStr() == null){
             Log.d(TAG,"获取失败");
@@ -49,18 +53,12 @@ public class BaiDuLocationService implements BDLocationListener {
             cityname = city;
         }
         else{
-            sendMassage(""); //找不到合适的城市，定位失败，发送空字符串
+            sendMassage(""); //数据库中找不到合适的城市，定位失败，发送空字符串
             return;
         }
 
-
+        Toast.makeText(context,"当前定位: "+cityname, Toast.LENGTH_SHORT).show();
         String citycode = MyApplication.getInstance().getCityCode(cityname, province);
-
-        //cityCode保存到SharedPreference
-        SharedPreferences.Editor editor = context.getSharedPreferences("config",Context.MODE_PRIVATE).edit();
-        editor.putString("main_city_code",citycode);
-        editor.commit();
-
         sendMassage(citycode); //发送消息给Activity
     }
     private boolean cityexist(String cityname){

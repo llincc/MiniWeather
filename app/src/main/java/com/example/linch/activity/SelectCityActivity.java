@@ -55,7 +55,7 @@ public class SelectCityActivity extends Activity implements View.OnClickListener
 
         //接受当前城市名
         Intent it_get = getIntent();
-        currentCity = it_get.getStringExtra("currentCity");
+        currentCity = it_get.getStringExtra("current_city");
         currentCity = currentCity.equals("N/A") ? "无" : currentCity;
         titleCity.setText("当前天气:"+currentCity);
         //初始化城市列表

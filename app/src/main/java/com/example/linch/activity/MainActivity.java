@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -36,6 +37,7 @@ import com.example.linch.service.FetchTodayWeatherService;
 import com.example.linch.util.ImageRotateUtil;
 import com.example.linch.util.ButtonSlopUtil;
 import com.example.linch.util.NetUtil;
+import com.example.linch.util.PermissionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +75,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     private LocationClient locationClient;
     private BaiDuLocationService baiDuLocationService;
+
+    private String[] requestPermissions = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION};
+    private PermissionUtil.PermissionTool permissionTool;
     @Override
     protected void onCreate(Bundle savedInstanceState ){
         super.onCreate(savedInstanceState);
@@ -100,9 +109,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         initAllViews();
         initService();  //初始化服务
-        initLocation();
+        initLocation(); //初始化地址设置
 
-       // permissionCheck(); //权限检查与申请
+
+        //permissionCheck(); //权限检查与申请
         locationClient.start(); //初始化时定位一次
     }
     /**
@@ -116,22 +126,26 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     TodayWeather todayWeather = (TodayWeather)msg.obj;
                     if(todayWeather.getCity().equals("N/A")){
                         Toast.makeText(MainActivity.this,"抱歉，该城市天气信息不存在",Toast.LENGTH_SHORT).show();
-                        break;
+                        recoverCityCode("main_city_code_current", "main_city_code_previous"); //天气信息不存在，说明当前城市代码无效，恢复上一个有效的城市代码
                     }
-                    updateTodayWeather(todayWeather);
-                    viewPagerAdapter.setInfoList(todayWeather);
-                    viewPagerAdapter.updatePageItems();
+                    else{
+                        updateTodayWeather(todayWeather);
+                        viewPagerAdapter.setInfoList(todayWeather); //更新ViewPager
+                        viewPagerAdapter.updatePageItems();
+                        recoverCityCode( "main_city_code_previous", "main_city_code_current"); //保存当前有效的citycode
+                    }
+
                     break;
-                case LOCATION_SERVICE:
+                case LOCATION_SERVICE:   //接受定位回传的城市代码
                     String citycode = (String)msg.obj;
-                    Log.d(TAG, citycode);
                     if("".equals(citycode)){
                         Toast.makeText(MainActivity.this,"定位失败，请检查网络设置",Toast.LENGTH_SHORT).show();
                     }
                     else{
-                        queryWeatherCode(citycode);
+                        Log.d(TAG, "定位城市代码："+citycode);
+                        queryWeatherCode(citycode);  //发送天气信息请求
                     }
-                    locationClient.stop();
+                    if(locationClient.isStarted()) locationClient.stop();
                     break;
                 default:
                     break;
@@ -144,13 +158,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
             case R.id.title_city_manager:
                 Intent intent = new Intent(this,SelectCityActivity.class);
                 //传递当前城市信息
-                intent.putExtra("currentCity",cityTv.getText());
-                startActivityForResult(intent,1);
+                intent.putExtra("current_city", cityTv.getText());
+                startActivityForResult(intent, 1);
                 break;
             case R.id.title_update_btn:
                 //通过SharedPreferences读取城市id，如果没有定义则缺省为101010100（北京城市）
                 SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
-                String cityCode = sharedPreferences.getString("main_city_code","101010100");
+                String cityCode = sharedPreferences.getString("main_city_code_current","101010100");
                 Log.d(TAG,cityCode);
 
                 if(NetUtil.isConnectNet(this)){  //确定网络可访问
@@ -220,7 +234,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         tabLayout.setupWithViewPager(viewPager, true);
 
         String citycode;
-        if(!(citycode =getSharedPreferences("config",MODE_PRIVATE).getString("main_city_code","")).equals("")){
+        if(!(citycode =getSharedPreferences("config",MODE_PRIVATE).getString("main_city_code_current","")).equals("")){
             queryWeatherCode(citycode);
         }
         else{
@@ -231,9 +245,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
         LocationClientOption option = new LocationClientOption();
         option.setOpenGps(true);
         option.setIsNeedAddress(true); //是否获取地址信息
-        option.setCoorType("bd09ll"); //百度经纬度坐标系
-        option.setLocationMode(LocationClientOption.LocationMode.Battery_Saving); //定位模式
+        option.setCoorType("bd09ll");  //百度经纬度坐标系
+        option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy); //定位模式
         option.setScanSpan(5000);  //设置检查周期
+        ;
         locationClient.setLocOption(option);
     }
 
@@ -335,9 +350,25 @@ public class MainActivity extends Activity implements View.OnClickListener{
      * @param cityCode   城市id
      */
     private  void queryWeatherCode(String cityCode){
+        //cityCode保存到SharedPreference
+        setSharePreference("main_city_code_current", cityCode);
+
         String address = String.format("%s%s","http://wthrcdn.etouch.cn/WeatherApi?citykey=",cityCode);
         ThreadPoolExecutor executor = ThreadPoolController.getInstance().getExecutor();
         executor.submit(new FetchTodayWeatherService(address,this));
+    }
+
+    /**
+     * 恢复citycode, 因为城市代码中可能存在无效的citycode(得不到天气信息)，所以用之前有效的citycode覆盖当前无效的citycode
+     */
+    private void recoverCityCode(String key_cur, String key_pre){
+        String old_citycode = getSharedPreferences("config",MODE_PRIVATE).getString(key_pre,"101010100"); //之前的有效的citycode
+        setSharePreference(key_cur, old_citycode);
+    }
+    private void setSharePreference(String key, String value){
+        SharedPreferences.Editor editor = getSharedPreferences("config",MODE_PRIVATE).edit();
+        editor.putString(key,value);
+        editor.commit();
     }
 
     /**
@@ -354,70 +385,22 @@ public class MainActivity extends Activity implements View.OnClickListener{
     public Handler getmHandler(){
         return mHandler;
     }
-//
-//    private void locationStart(){
-//        if(NetUtil.isConnectNet(this)){
-//            locationClient.start();
-//        }
-//        else{
-//
-//        }
-//    }
 
     /**
      * 定位相关权限检查
      */
     @TargetApi(23)
-    private void permissionCheck(){
-        String permissionInfo = "";
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.M){ //安卓6.0 SDK23才会有这个问题
-            ArrayList<String> permissions = new ArrayList<String>();
-            /***
-             * 定位权限为必须权限，用户如果禁止，则每次进入都会申请
-             */
-            // 定位精确位置
-            if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-            }
-            if(checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-            }
-            /*
-             * 读写权限和电话状态权限非必要权限(建议授予)只会申请一次，用户同意或者禁止，只会弹一次
-             */
-            // 读写权限
-            if (addPermission(permissions, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                permissionInfo += "Manifest.permission.WRITE_EXTERNAL_STORAGE Deny \n";
-            }
-            // 读取电话状态权限
-            if (addPermission(permissions, Manifest.permission.READ_PHONE_STATE)) {
-                permissionInfo += "Manifest.permission.READ_PHONE_STATE Deny \n";
-            }
-
-            if (permissions.size() > 0) {
-                requestPermissions(permissions.toArray(new String[permissions.size()]), SDK_PERMISSION_REQUEST);
-            }
+    private void startLocation(){
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.M){ //安卓6.0 SDK23才需要申请权限
+            permissionTool = new PermissionUtil.PermissionTool(new PermissionUtil.PermissionListener() {
+                @Override
+                public void allGranted() {
+                    Log.d(TAG, "已有权限");
+                    locationClient.start();
+                }
+            });
+            permissionTool.checkAndRequestPermission(MainActivity.this, requestPermissions);
         }
-    }
-    @TargetApi(23)
-    private boolean addPermission(ArrayList<String> permissionsList, String permission) {
-        if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) { // 如果应用没有获得对应权限,则添加到列表中,准备批量申请
-            if (shouldShowRequestPermissionRationale(permission)){
-                return true;
-            }else{
-                permissionsList.add(permission);
-                return false;
-            }
-        }else{
-            return true;
-        }
-    }
-    @TargetApi(23)
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        // TODO Auto-generated method stub
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
     }
 
 
