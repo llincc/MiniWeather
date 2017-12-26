@@ -194,17 +194,4 @@ public class ViewPagerAdapter extends PagerAdapter {
         weatherInfoList.add(todayWeather.getFengxiang4());
 
     }
-//    private void setIdotimage(int position){
-//        if(context==null){
-//            return;
-//        }
-//        this.idotList = context.getIdotList();
-//        for(int i=0; i<idotList.size(); i++) {
-//            if (i == position) {
-//                idotList.get(i).setImageDrawable(context.getResources().getDrawable(R.drawable.idot_focused));
-//            } else {
-//                idotList.get(i).setImageDrawable(context.getResources().getDrawable(R.drawable.idot_unfocused));
-//            }
-//        }
-//    }
 }

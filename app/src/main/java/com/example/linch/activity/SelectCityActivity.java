@@ -104,9 +104,9 @@ public class SelectCityActivity extends Activity implements View.OnClickListener
         String []city_province = cityList.get(i).split(" ");
         String citycode = MyApplication.getInstance().getCityCode(city_province[0],city_province[1]);
         //cityCode保存到SharedPreference
-        SharedPreferences.Editor editor = getSharedPreferences("config",MODE_PRIVATE).edit();
-        editor.putString("main_city_code",citycode);
-        editor.commit();
+//        SharedPreferences.Editor editor = getSharedPreferences("config",MODE_PRIVATE).edit();
+//        editor.putString("main_city_code",citycode);
+//        editor.commit();
         //执行跳转到主界面程序
         directToMain(citycode,cityList.get(i));
     }

@@ -1,10 +1,12 @@
 package com.example.linch.bean;
 
+import java.io.Serializable;
+
 /**
  * Created by linch on 2017/10/12.
  */
 
-public class TodayWeather {
+public class TodayWeather implements Serializable{
 
     private String city;
     private String updatetime;

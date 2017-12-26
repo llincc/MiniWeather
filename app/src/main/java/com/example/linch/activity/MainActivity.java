@@ -8,13 +8,10 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -28,14 +25,15 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.example.linch.adapter.ViewPagerAdapter;
 import com.example.linch.app.MyApplication;
+import com.example.linch.appwidget.MiniWidget;
 import com.example.linch.bean.TodayWeather;
 import com.example.linch.controller.ThreadPoolController;
 import com.example.linch.miniweather.R;
 import com.example.linch.service.AutoUpdateService;
 import com.example.linch.service.BaiDuLocationService;
 import com.example.linch.service.FetchTodayWeatherService;
-import com.example.linch.util.ImageRotateUtil;
 import com.example.linch.util.ButtonSlopUtil;
+import com.example.linch.util.ImageRotateUtil;
 import com.example.linch.util.NetUtil;
 import com.example.linch.util.PermissionUtil;
 
@@ -86,6 +84,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState ){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
+
         //System.out.println(Thread.currentThread().getName());
         mUpdateBtn = (ImageView)findViewById(R.id.title_update_btn);   //title_update_btn按钮
         mCityBtn =   (ImageView)findViewById(R.id.title_city_manager); //title_city_manager按钮
@@ -145,7 +144,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
                         Log.d(TAG, "定位城市代码："+citycode);
                         queryWeatherCode(citycode);  //发送天气信息请求
                     }
-                    if(locationClient.isStarted()) locationClient.stop();
+                    if(locationClient.isStarted()){
+                        locationClient.stop();// 暂停定位服务
+                    }
                     break;
                 default:
                     break;
@@ -231,7 +232,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         viewPager.setAdapter(viewPagerAdapter);
 
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tabDots);
-        tabLayout.setupWithViewPager(viewPager, true);
+        tabLayout.setupWithViewPager(viewPager, true);  //TabLayout绑定ViewPage
 
         String citycode;
         if(!(citycode =getSharedPreferences("config",MODE_PRIVATE).getString("main_city_code_current","")).equals("")){

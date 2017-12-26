@@ -5,9 +5,15 @@ package com.example.linch.service;
  */
 
 
+import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Message;
+import android.util.Log;
 
 import com.example.linch.activity.MainActivity;
+import com.example.linch.app.MyApplication;
+import com.example.linch.appwidget.MiniWidget;
 import com.example.linch.bean.TodayWeather;
 import com.example.linch.util.XmlParserUtil;
 
@@ -20,15 +26,26 @@ import java.net.URL;
 
 public class FetchTodayWeatherService implements Runnable
 {
+    public static final int TO_MAINACTIVITY = 11;
+    public static final int TO_MINI_WIDGET = 12;
     private String address;
     private HttpURLConnection connection;
-    private MainActivity context;
+    private Context context;
+    private int  toWhere;
 
-    public FetchTodayWeatherService(String address,MainActivity context)
+    public FetchTodayWeatherService(String address, Context context)
     {
         this.address = address;
         this.connection = null;
         this.context = context;
+        this.toWhere = TO_MAINACTIVITY;
+    }
+    public FetchTodayWeatherService(String address, Context context, int toWhere)
+    {
+        this.address = address;
+        this.connection = null;
+        this.context = context;
+        this.toWhere = toWhere;
     }
 
     /**
@@ -87,9 +104,17 @@ public class FetchTodayWeatherService implements Runnable
     private void sendMessage(TodayWeather todayWeather)
     {
         Message message = new Message();
-        message.what = MainActivity.UPDATE_TODAY_WEATHER;
         message.obj = todayWeather;
-        context.getmHandler().sendMessage(message);
+        message.what = MainActivity.UPDATE_TODAY_WEATHER;
+        ((MainActivity)context).getmHandler().sendMessage(message);
+
+    }
+    private void sendBroadcast(TodayWeather todayWeather){
+        Log.d("FetchInfo", "发送广播");
+        Intent intent = new Intent(MiniWidget.ACTION_UPDATE_WEATHER);
+        intent.putExtra("todayweather", todayWeather);
+        Log.d("FetchInfo",intent.getAction());
+        MyApplication.getInstance().sendBroadcast(intent);
     }
     /**
      * 主调用程序
@@ -102,7 +127,13 @@ public class FetchTodayWeatherService implements Runnable
         String data = this.fetchData();
         this.close();
         TodayWeather todayWeather = this.parseWeather(data);
-        this.sendMessage(todayWeather);
+        if(toWhere == TO_MAINACTIVITY){
+            this.sendMessage(todayWeather);
+        }
+        else if(toWhere == TO_MINI_WIDGET){
+            this.sendBroadcast(todayWeather);
+        }
+
     }
 
     @Override
@@ -116,4 +147,5 @@ public class FetchTodayWeatherService implements Runnable
             e.printStackTrace();
         }
     }
+
 }

@@ -26,6 +26,7 @@ public class BaiDuLocationService extends BDAbstractLocationListener {
     @Override
     public void onReceiveLocation(BDLocation bdLocation) {
         if(bdLocation == null){
+            Log.d(TAG,"获取位置失败");
             sendMassage("");
             return;
         }
@@ -33,7 +34,7 @@ public class BaiDuLocationService extends BDAbstractLocationListener {
         Log.d(TAG, String.valueOf(bdLocation.getLatitude()));
         Log.d(TAG,String.valueOf(bdLocation.getLocType()));
         if(bdLocation.getAddrStr() == null){
-            Log.d(TAG,"获取失败");
+            Log.d(TAG,"获取位置失败");
             sendMassage("");
             return;
         }
